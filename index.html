@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>双因子猎手 V9.1 | 动态量化指挥舱</title>
+    <style>
+        :root {
+            --bg-color: #0b0e14;
+            --panel-bg: #151a22;
+            --text-main: #e0e6ed;
+            --text-muted: #6b7280;
+            --accent-green: #00e676;
+            --accent-red: #ff3d00;
+            --border-color: #2a3241;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 10px 0 30px 0;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+        .header h1 { margin: 0; color: var(--accent-green); font-weight: 300; letter-spacing: 2px; }
+        .header p { color: var(--text-muted); font-size: 14px; margin-top: 5px; }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .card {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+        .card h2 {
+            font-size: 16px;
+            margin-top: 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            color: #8ab4f8;
+        }
+        .form-group { margin-bottom: 15px; }
+        .form-group label {
+            display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 100%; padding: 8px; box-sizing: border-box;
+            background-color: #0b0e14; border: 1px solid var(--border-color);
+            color: var(--text-main); border-radius: 4px; transition: border 0.3s;
+        }
+        .form-group input:focus, .form-group select:focus { 
+            border-color: var(--accent-green); outline: none; 
+        }
+        
+        .btn-execute {
+            width: 100%; padding: 15px; font-size: 18px; font-weight: bold;
+            background-color: #2a3241; color: var(--text-main);
+            border: 2px solid var(--border-color); border-radius: 4px;
+            cursor: pointer; transition: 0.3s; margin-top: 20px;
+        }
+        .btn-execute:hover { background-color: var(--accent-green); color: #000; border-color: var(--accent-green); }
+        .btn-execute:active { transform: scale(0.98); }
+        
+        #resultPanel {
+            grid-column: span 3; background-color: #000; padding: 20px;
+            border-left: 4px solid var(--border-color); font-family: monospace; white-space: pre-wrap;
+            min-height: 150px; font-size: 15px; line-height: 1.6; transition: border-left-color 0.3s ease;
+        }
+        .pass { color: var(--accent-green); }
+        .fail { color: var(--accent-red); }
+        .warning { color: #ffd600; }
+        .title { color: #8ab4f8; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>双因子猎手 V9.1 动态指挥舱</h1>
+        <p>市场分析 | 技术研判 | 风险铁律 | 心态剥离 | 动态复盘</p>
+    </div>
+
+    <div class="grid-container">
+        <!-- 模块一：市场分析 -->
+        <div class="card">
+            <h2>🛡️ 1. 市场基本面 (调研防线)</h2>
+            <div class="form-group"><label>标的代码/名称</label><input type="text" id="stockName" value="测试标的"></div>
+            <div class="form-group"><label>市盈率 (PE TTM) [0-50]</label><input type="number" id="pe" value="15"></div>
+            <div class="form-group"><label>经营现金流状态</label>
+                <select id="cashFlow"><option value="yes">充沛 (正向造血)</option><option value="no">枯竭 (负向预警)</option></select>
+            </div>
+        </div>
+
+        <!-- 模块二：技术面研究 -->
+        <div class="card">
+            <h2>🔭 2. 技术面指标 (多周期测距)</h2>
+            <div class="form-group"><label>当前现价 (元)</label><input type="number" id="price" value="20.50"></div>
+            <div class="form-group"><label>成交量放大倍数 [>=1.5倍]</label><input type="number" id="vol" value="1.8"></div>
+            <div class="form-group"><label>日线 BIAS(60) 乖离率 [%]</label><input type="number" id="bias" value="4.5"></div>
+            <div class="form-group"><label>日线 RSI [50-75] / 月线 RSI [<=70]</label>
+                <div style="display:flex; gap:10px;">
+                    <input type="number" id="rsiDaily" placeholder="日" value="65">
+                    <input type="number" id="rsiMonthly" placeholder="月" value="60">
+                </div>
+            </div>
+        </div>
+
+        <!-- 模块三：风险管理 -->
+        <div class="card">
+            <h2>⚖️ 3. 风险管理 (盈亏精算)</h2>
+            <div class="form-group"><label>账户总资金 (元)</label><input type="number" id="capital" value="100000"></div>
+            <div class="form-group"><label>今日 ATR(14) 数值</label><input type="number" id="atr" value="1.2"></div>
+            <div class="form-group"><label>预期止盈点位 (上方阻力元)</label><input type="number" id="targetPrice" value="25.00"></div>
+            <div class="form-group"><label>筹码获利比例 [%]</label><input type="number" id="profitRatio" value="85"></div>
+        </div>
+
+        <div style="grid-column: span 3;">
+            <button class="btn-execute" onclick="executeSystem()">⚡ 重新生成 / 执行核心审判 (EXECUTE)</button>
+        </div>
+
+        <!-- 模块四：输出结果与复盘总结 -->
+        <div id="resultPanel">等待统帅录入情报，系统静默中...</div>
+    </div>
+
+    <script>
+        function executeSystem() {
+            const panel = document.getElementById('resultPanel');
+            
+            // 【核心重载逻辑】：每次点击，强制重置面板样式与内容，实现无刷新更新
+            panel.style.borderLeftColor = "var(--border-color)";
+            panel.innerHTML = "<span class='warning'>⏳ 接收最新参数... 正在启动深度 X光排雷审查...</span>\n";
+
+            // 加入微小延迟，给予系统“正在重算”的视觉反馈，剥离人类焦躁心态
+            setTimeout(() => {
+                // 获取数据
+                const stockName = document.getElementById('stockName').value;
+                const pe = parseFloat(document.getElementById('pe').value);
+                const cashFlow = document.getElementById('cashFlow').value;
+                const price = parseFloat(document.getElementById('price').value);
+                const vol = parseFloat(document.getElementById('vol').value);
+                const bias = parseFloat(document.getElementById('bias').value);
+                const rsiDaily = parseFloat(document.getElementById('rsiDaily').value);
+                const rsiMonthly = parseFloat(document.getElementById('rsiMonthly').value);
+                const capital = parseFloat(document.getElementById('capital').value);
+                const atr = parseFloat(document.getElementById('atr').value);
+                const targetPrice = parseFloat(document.getElementById('targetPrice').value);
+                const profitRatio = parseFloat(document.getElementById('profitRatio').value);
+
+                let isPass = true;
+                let fails = [];
+
+                // 【准则一】市场分析
+                if (pe < 0 || pe > 50) { isPass = false; fails.push("市场分析死刑：PE不在 0~50 范围，脱离宏观与基本面安全垫！"); }
+                if (cashFlow === 'no') { isPass = false; fails.push("市场分析死刑：现金流枯竭，企业缺乏真实造血能力！"); }
+
+                // 【准则二】技术面研究
+                if (vol < 1.5) { isPass = false; fails.push(`技术面死刑：量能仅 ${vol}倍，无主力资金共振，进场时机未到！`); }
+                if (bias < 0 || bias > 15) { isPass = false; fails.push(`技术面死刑：BIAS 为 ${bias}%，K线形态偏离安全进场点！`); }
+                if (rsiDaily < 50 || rsiDaily > 75) { isPass = false; fails.push(`技术面死刑：日线 RSI 为 ${rsiDaily}，相对强弱动能不佳！`); }
+                if (rsiMonthly > 70) { isPass = false; fails.push(`技术面死刑：月线 RSI 高达 ${rsiMonthly}，大周期面临回调风险！`); }
+                if (profitRatio < 30) { isPass = false; fails.push(`技术面死刑：获利比例仅 ${profitRatio}%，上方套牢盘压力极大！`); }
+
+                // 【准则三】风险管理 (止损与止盈)
+                const stopPrice = price - (1.5 * atr);
+                if (targetPrice <= price) {
+                    isPass = false; fails.push("风控死刑：预设止盈点位必须高于现价！");
+                } else {
+                    const rr = (targetPrice - price) / (price - stopPrice);
+                    if (rr < 2) { isPass = false; fails.push(`风控死刑：盈亏比仅为 ${rr.toFixed(2)} (<2)，违背风控纪律！`); }
+                }
+
+                // --- 失败输出 ---
+                if (!isPass) {
+                    panel.style.borderLeftColor = "var(--accent-red)";
+                    let out = `<span class="fail">🚫 统帅指令：【多周期排雷失败，一票否决，禁止开火！】</span>\n\n`;
+                    fails.forEach(f => out += ` ❌ ${f}\n`);
+                    out += `\n<span class="title">【准则四：心态控制】</span>\n<span class="warning">在市场波动中保持冷静。机器已切断你的非理性贪婪，立刻放弃该标的，等待下一个高胜率机会！</span>`;
+                    panel.innerHTML = out;
+                    return;
+                }
+
+                // --- 【准则三】风险管理 (仓位配置) ---
+                const rrFinal = (targetPrice - price) / (price - stopPrice);
+                const maxRiskAmount = capital * 0.015;
+                const riskPerShare = price - stopPrice;
+                const riskPerLot = riskPerShare * 100;
+                const maxShares = Math.floor((maxRiskAmount / riskPerShare) / 100) * 100;
+                const firstStrike = Math.floor((maxShares * 0.5) / 100) * 100;
+
+                if (maxShares === 0) {
+                    panel.style.borderLeftColor = "var(--accent-red)";
+                    panel.innerHTML = `<span class="fail">🚨 【统帅最高级别风控警告：资金超载！】</span>\n买1手的风险(${riskPerLot.toFixed(2)}元)已击穿账户承受能力(${maxRiskAmount.toFixed(2)}元)！根据风控准则，严禁开火！`;
+                    return;
+                }
+
+                // --- 成功输出与复盘档案 ---
+                panel.style.borderLeftColor = "var(--accent-green)";
+                let out = `<span class="pass">✅ AI 审查全线亮绿灯！准许按既定策略开火！</span>\n`;
+                out += `==========================================================\n`;
+                out += ` <span class="title">⚔️ 【行动纲领指令执行】 ⚔️</span> \n`;
+                out += `🎯 猎物代号: ${stockName}\n`;
+                out += `<span class="fail">🔴 预设防守: 绝对止损点位 ${stopPrice.toFixed(2)} 元 (买入瞬间必须挂载条件单)</span>\n`;
+                out += `📈 预设进攻: 预期止盈点位 ${targetPrice.toFixed(2)} 元 (盈亏比: ${rrFinal.toFixed(2)})\n`;
+                out += `🛡️ 仓位配置: 科学分配极限总仓位 ${maxShares} 股 (本金单次风险<1.5%)\n\n`;
+                
+                out += `<span class="warning">🚀 【战术进场动作】：</span>\n`;
+                out += `   >> 准许在 14:50 进场，首发 50% 底仓：【 ${firstStrike === 0 ? "按最低1手建仓，绝不超载" : firstStrike + " 股"} 】！\n\n`;
+                
+                out += `<span class="title">【准则四：心态控制】</span>\n`;
+                out += `在市场波动中保持冷静。此时进场已剥离贪婪与恐惧，完全基于理性纪律。\n\n`;
+
+                out += `<span class="title">📝 【准则五：复盘总结】(请一键复制归档)：</span>\n`;
+                out += `日期：${new Date().toLocaleDateString()} | 标的：${stockName} | 动作：进场 ${firstStrike === 0 ? 100 : firstStrike} 股\n`;
+                out += `市场分析：宏观经济顺势，基本面PE ${pe} 且现金流达标，调研通过。\n`;
+                out += `技术研判：量能 ${vol} 倍验证。K线与均线测距 BIAS ${bias}%，RSI健康(${rsiDaily})。筹码获利 ${profitRatio}% 进场时机极佳。\n`;
+                out += `风控纪律：预设止损 ${stopPrice.toFixed(2)}，预期止盈 ${targetPrice.toFixed(2)}，盈亏比达 ${rrFinal.toFixed(2)}。仓位科学分配。\n`;
+                out += `后续计划：严格遵守条件单，分析后续盈亏原因，动态调整策略。\n`;
+                
+                panel.innerHTML = out;
+            }, 300); // 300毫秒的视觉缓冲
+
+        }
+    </script>
+</body>
+</html>
