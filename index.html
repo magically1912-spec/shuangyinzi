@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>双因子猎手 V9.1 | 动态量化指挥舱</title>
+    <title>双因子猎手 V9.3 | 动态量化指挥舱</title>
     <style>
         :root {
             --bg-color: #0b0e14;
@@ -52,8 +52,11 @@
             color: #8ab4f8;
         }
         .form-group { margin-bottom: 15px; }
-        .form-group label {
-            display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 5px;
+        .form-group > label {
+            display: block; font-size: 13px; color: #8ab4f8; margin-bottom: 8px; font-weight: bold;
+        }
+        .sub-label {
+            font-size: 11px; color: var(--text-muted); margin-bottom: 3px; display: block;
         }
         .form-group input, .form-group select {
             width: 100%; padding: 8px; box-sizing: border-box;
@@ -87,36 +90,56 @@
 <body>
 
     <div class="header">
-        <h1>双因子猎手 V9.1 动态指挥舱</h1>
-        <p>市场分析 | 技术研判 | 风险铁律 | 心态剥离 | 动态复盘</p>
+        <h1>双因子猎手 V9.3 动态指挥舱</h1>
+        <p>消除战术摩擦力！市场分析 | 技术研判 | 风险铁律 | 自动核算</p>
     </div>
 
     <div class="grid-container">
-        <!-- 模块一：市场分析 -->
+        
         <div class="card">
             <h2>🛡️ 1. 市场基本面 (调研防线)</h2>
             <div class="form-group"><label>标的代码/名称</label><input type="text" id="stockName" value="测试标的"></div>
-            <div class="form-group"><label>市盈率 (PE TTM) [0-50]</label><input type="number" id="pe" value="15"></div>
+            <div class="form-group"><label>市盈率 (PE TTM) [要求: 0-50]</label><input type="number" id="pe" value="15"></div>
             <div class="form-group"><label>经营现金流状态</label>
                 <select id="cashFlow"><option value="yes">充沛 (正向造血)</option><option value="no">枯竭 (负向预警)</option></select>
             </div>
         </div>
 
-        <!-- 模块二：技术面研究 -->
+        
         <div class="card">
             <h2>🔭 2. 技术面指标 (多周期测距)</h2>
             <div class="form-group"><label>当前现价 (元)</label><input type="number" id="price" value="20.50"></div>
-            <div class="form-group"><label>成交量放大倍数 [>=1.5倍]</label><input type="number" id="vol" value="1.8"></div>
-            <div class="form-group"><label>日线 BIAS(60) 乖离率 [%]</label><input type="number" id="bias" value="4.5"></div>
-            <div class="form-group"><label>日线 RSI [50-75] / 月线 RSI [<=70]</label>
+            
+            <div class="form-group"><label>成交量测算 (系统自动算倍数)</label>
                 <div style="display:flex; gap:10px;">
-                    <input type="number" id="rsiDaily" placeholder="日" value="65">
-                    <input type="number" id="rsiMonthly" placeholder="月" value="60">
+                    <div style="flex:1;">
+                        <span class="sub-label">今日成交量 (手/万手)</span>
+                        <input type="number" id="volToday" value="15000">
+                    </div>
+                    <div style="flex:1;">
+                        <span class="sub-label">20日均量 (手/万手)</span>
+                        <input type="number" id="vol20Days" value="8000">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group"><label>日线 BIAS(60) 乖离率 [%]</label><input type="number" id="bias" value="4.5"></div>
+            
+            <div class="form-group"><label>RSI 动能指标</label>
+                <div style="display:flex; gap:10px;">
+                    <div style="flex:1;">
+                        <span class="sub-label">日线 RSI [50-75]</span>
+                        <input type="number" id="rsiDaily" value="65">
+                    </div>
+                    <div style="flex:1;">
+                        <span class="sub-label">月线 RSI [<=70]</span>
+                        <input type="number" id="rsiMonthly" value="60">
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- 模块三：风险管理 -->
+        
         <div class="card">
             <h2>⚖️ 3. 风险管理 (盈亏精算)</h2>
             <div class="form-group"><label>账户总资金 (元)</label><input type="number" id="capital" value="100000"></div>
@@ -126,10 +149,10 @@
         </div>
 
         <div style="grid-column: span 3;">
-            <button class="btn-execute" onclick="executeSystem()">⚡ 重新生成 / 执行核心审判 (EXECUTE)</button>
+            <button class="btn-execute" onclick="executeSystem()">⚡ 重载参数 / 执行核心审判 (EXECUTE)</button>
         </div>
 
-        <!-- 模块四：输出结果与复盘总结 -->
+        
         <div id="resultPanel">等待统帅录入情报，系统静默中...</div>
     </div>
 
@@ -137,18 +160,20 @@
         function executeSystem() {
             const panel = document.getElementById('resultPanel');
             
-            // 【核心重载逻辑】：每次点击，强制重置面板样式与内容，实现无刷新更新
             panel.style.borderLeftColor = "var(--border-color)";
-            panel.innerHTML = "<span class='warning'>⏳ 接收最新参数... 正在启动深度 X光排雷审查...</span>\n";
+            panel.innerHTML = "<span class='warning'>⏳ 接收最新参数... 正在启动机器深度核算...</span>\n";
 
-            // 加入微小延迟，给予系统“正在重算”的视觉反馈，剥离人类焦躁心态
             setTimeout(() => {
-                // 获取数据
                 const stockName = document.getElementById('stockName').value;
                 const pe = parseFloat(document.getElementById('pe').value);
                 const cashFlow = document.getElementById('cashFlow').value;
                 const price = parseFloat(document.getElementById('price').value);
-                const vol = parseFloat(document.getElementById('vol').value);
+                
+                // 提取量能并计算倍数
+                const volToday = parseFloat(document.getElementById('volToday').value);
+                const vol20Days = parseFloat(document.getElementById('vol20Days').value);
+                const volMultiplier = volToday / vol20Days;
+
                 const bias = parseFloat(document.getElementById('bias').value);
                 const rsiDaily = parseFloat(document.getElementById('rsiDaily').value);
                 const rsiMonthly = parseFloat(document.getElementById('rsiMonthly').value);
@@ -161,37 +186,38 @@
                 let fails = [];
 
                 // 【准则一】市场分析
-                if (pe < 0 || pe > 50) { isPass = false; fails.push("市场分析死刑：PE不在 0~50 范围，脱离宏观与基本面安全垫！"); }
-                if (cashFlow === 'no') { isPass = false; fails.push("市场分析死刑：现金流枯竭，企业缺乏真实造血能力！"); }
+                if (pe < 0 || pe > 50) { isPass = false; fails.push("市场面死刑：PE不在 0~50 范围，脱离基本面安全垫！"); }
+                if (cashFlow === 'no') { isPass = false; fails.push("市场面死刑：现金流枯竭，企业缺乏真实造血能力！"); }
 
                 // 【准则二】技术面研究
-                if (vol < 1.5) { isPass = false; fails.push(`技术面死刑：量能仅 ${vol}倍，无主力资金共振，进场时机未到！`); }
-                if (bias < 0 || bias > 15) { isPass = false; fails.push(`技术面死刑：BIAS 为 ${bias}%，K线形态偏离安全进场点！`); }
+                if (volMultiplier < 1.5) { isPass = false; fails.push(`技术面死刑：量能仅放大 ${volMultiplier.toFixed(2)} 倍 (未达1.5倍)，无主力资金共振！`); }
+                if (bias < 0 || bias > 15) { isPass = false; fails.push(`技术面死刑：BIAS 为 ${bias}%，偏离 0~15% 安全进场点！`); }
                 if (rsiDaily < 50 || rsiDaily > 75) { isPass = false; fails.push(`技术面死刑：日线 RSI 为 ${rsiDaily}，相对强弱动能不佳！`); }
-                if (rsiMonthly > 70) { isPass = false; fails.push(`技术面死刑：月线 RSI 高达 ${rsiMonthly}，大周期面临回调风险！`); }
-                if (profitRatio < 30) { isPass = false; fails.push(`技术面死刑：获利比例仅 ${profitRatio}%，上方套牢盘压力极大！`); }
+                if (rsiMonthly > 70) { isPass = false; fails.push(`技术面死刑：月线 RSI 高达 ${rsiMonthly}，大周期面临回调爆缸风险！`); }
+                if (profitRatio < 30) { isPass = false; fails.push(`技术面死刑：获利比例仅 ${profitRatio}%，上方套牢盘抛压极大！`); }
 
-                // 【准则三】风险管理 (止损与止盈)
+                // 【准则三】盈亏比强制核算
                 const stopPrice = price - (1.5 * atr);
+                let rrFinal = 0;
                 if (targetPrice <= price) {
                     isPass = false; fails.push("风控死刑：预设止盈点位必须高于现价！");
                 } else {
-                    const rr = (targetPrice - price) / (price - stopPrice);
-                    if (rr < 2) { isPass = false; fails.push(`风控死刑：盈亏比仅为 ${rr.toFixed(2)} (<2)，违背风控纪律！`); }
+                    rrFinal = (targetPrice - price) / (price - stopPrice);
+                    if (rrFinal < 2) { isPass = false; fails.push(`风控死刑：盈亏比仅为 ${rrFinal.toFixed(2)} (<2)，拿命博铜板，严禁开火！`); }
                 }
 
-                // --- 失败输出 ---
+                // --- 拦截输出 ---
                 if (!isPass) {
                     panel.style.borderLeftColor = "var(--accent-red)";
                     let out = `<span class="fail">🚫 统帅指令：【多周期排雷失败，一票否决，禁止开火！】</span>\n\n`;
                     fails.forEach(f => out += ` ❌ ${f}\n`);
-                    out += `\n<span class="title">【准则四：心态控制】</span>\n<span class="warning">在市场波动中保持冷静。机器已切断你的非理性贪婪，立刻放弃该标的，等待下一个高胜率机会！</span>`;
+                    out += `\n<span class="warning">💡 【量能参数核对】：今日量能倍数为 ${volMultiplier.toFixed(2)} 倍。</span>\n`;
+                    out += `<span class="title">【准则四：心态控制】</span>\n<span class="warning">看清楚上面的盈亏比和败因！机器已切断你的非理性贪婪，立刻放弃该标的，管住手！</span>`;
                     panel.innerHTML = out;
                     return;
                 }
 
-                // --- 【准则三】风险管理 (仓位配置) ---
-                const rrFinal = (targetPrice - price) / (price - stopPrice);
+                // --- 【风控】仓位精算 ---
                 const maxRiskAmount = capital * 0.015;
                 const riskPerShare = price - stopPrice;
                 const riskPerLot = riskPerShare * 100;
@@ -200,7 +226,7 @@
 
                 if (maxShares === 0) {
                     panel.style.borderLeftColor = "var(--accent-red)";
-                    panel.innerHTML = `<span class="fail">🚨 【统帅最高级别风控警告：资金超载！】</span>\n买1手的风险(${riskPerLot.toFixed(2)}元)已击穿账户承受能力(${maxRiskAmount.toFixed(2)}元)！根据风控准则，严禁开火！`;
+                    panel.innerHTML = `<span class="fail">🚨 【统帅最高级别风控警告：资金超载！】</span>\n买1手的风险(${riskPerLot.toFixed(2)}元)已击穿账户总资金1.5%的护甲(${maxRiskAmount.toFixed(2)}元)！标的波动绝对值过大，当前本金严禁开火！`;
                     return;
                 }
 
@@ -211,25 +237,20 @@
                 out += ` <span class="title">⚔️ 【行动纲领指令执行】 ⚔️</span> \n`;
                 out += `🎯 猎物代号: ${stockName}\n`;
                 out += `<span class="fail">🔴 预设防守: 绝对止损点位 ${stopPrice.toFixed(2)} 元 (买入瞬间必须挂载条件单)</span>\n`;
-                out += `📈 预设进攻: 预期止盈点位 ${targetPrice.toFixed(2)} 元 (盈亏比: ${rrFinal.toFixed(2)})\n`;
-                out += `🛡️ 仓位配置: 科学分配极限总仓位 ${maxShares} 股 (本金单次风险<1.5%)\n\n`;
+                out += `<span class="pass">📈 核心数据: 盈亏比 ${rrFinal.toFixed(2)} | 量能倍数 ${volMultiplier.toFixed(2)} 倍</span>\n`;
+                out += `🛡️ 仓位配置: 极限总仓位 ${maxShares} 股 (本金单次风险<1.5%)\n\n`;
                 
                 out += `<span class="warning">🚀 【战术进场动作】：</span>\n`;
                 out += `   >> 准许在 14:50 进场，首发 50% 底仓：【 ${firstStrike === 0 ? "按最低1手建仓，绝不超载" : firstStrike + " 股"} 】！\n\n`;
                 
-                out += `<span class="title">【准则四：心态控制】</span>\n`;
-                out += `在市场波动中保持冷静。此时进场已剥离贪婪与恐惧，完全基于理性纪律。\n\n`;
-
-                out += `<span class="title">📝 【准则五：复盘总结】(请一键复制归档)：</span>\n`;
-                out += `日期：${new Date().toLocaleDateString()} | 标的：${stockName} | 动作：进场 ${firstStrike === 0 ? 100 : firstStrike} 股\n`;
-                out += `市场分析：宏观经济顺势，基本面PE ${pe} 且现金流达标，调研通过。\n`;
-                out += `技术研判：量能 ${vol} 倍验证。K线与均线测距 BIAS ${bias}%，RSI健康(${rsiDaily})。筹码获利 ${profitRatio}% 进场时机极佳。\n`;
-                out += `风控纪律：预设止损 ${stopPrice.toFixed(2)}，预期止盈 ${targetPrice.toFixed(2)}，盈亏比达 ${rrFinal.toFixed(2)}。仓位科学分配。\n`;
-                out += `后续计划：严格遵守条件单，分析后续盈亏原因，动态调整策略。\n`;
+                out += `<span class="title">📝 【准则五：动态复盘档案】(请一键复制归档)：</span>\n`;
+                out += `日期：${new Date().toLocaleDateString()} | 标的：${stockName} | 动作：首发 ${firstStrike === 0 ? 100 : firstStrike} 股\n`;
+                out += `市场分析：基本面PE ${pe} 且现金流达标。\n`;
+                out += `技术研判：量能 ${volMultiplier.toFixed(2)} 倍。BIAS ${bias}%，RSI健康(${rsiDaily})。获利比例 ${profitRatio}%。\n`;
+                out += `风控纪律：止损 ${stopPrice.toFixed(2)}，止盈 ${targetPrice.toFixed(2)}，盈亏比达 ${rrFinal.toFixed(2)}。\n`;
                 
                 panel.innerHTML = out;
-            }, 300); // 300毫秒的视觉缓冲
-
+            }, 300); 
         }
     </script>
 </body>
