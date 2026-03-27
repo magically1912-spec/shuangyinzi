@@ -2,58 +2,22 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>双因子猎手 V9.4 | API 雷达指挥舱</title>
+    <title>双因子猎手 V9.5 | 究极定制雷达舱</title>
     <style>
         :root {
-            --bg-color: #0b0e14;
-            --panel-bg: #151a22;
-            --text-main: #e0e6ed;
-            --text-muted: #6b7280;
-            --accent-green: #00e676;
-            --accent-red: #ff3d00;
-            --border-color: #2a3241;
-            --api-blue: #00b0ff;
+            --bg-color: #0b0e14; --panel-bg: #151a22; --text-main: #e0e6ed;
+            --text-muted: #6b7280; --accent-green: #00e676; --accent-red: #ff3d00;
+            --border-color: #2a3241; --api-blue: #00b0ff; --warning-yellow: #ffd600;
         }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            padding: 20px;
-        }
-        .header {
-            text-align: center;
-            padding: 10px 0 20px 0;
-            border-bottom: 2px solid var(--border-color);
-            margin-bottom: 20px;
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; }
+        .header { text-align: center; padding: 10px 0 20px 0; border-bottom: 2px solid var(--border-color); margin-bottom: 20px; }
         .header h1 { margin: 0; color: var(--accent-green); font-weight: 300; letter-spacing: 2px; }
         .header p { color: var(--text-muted); font-size: 14px; margin-top: 5px; }
         
-        /* V9.4 新增 API 雷达控制台样式 */
-        .radar-panel {
-            background: linear-gradient(135deg, #10151f 0%, #1a2333 100%);
-            border: 1px solid var(--api-blue);
-            border-radius: 8px;
-            padding: 20px;
-            margin: 0 auto 20px auto;
-            max-width: 1400px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            box-shadow: 0 0 15px rgba(0, 176, 255, 0.1);
-        }
-        .radar-panel input {
-            padding: 12px; font-size: 16px; font-weight: bold; background-color: #000;
-            color: var(--api-blue); border: 1px solid var(--api-blue); border-radius: 4px;
-            width: 200px; text-transform: uppercase;
-        }
+        .radar-panel { background: linear-gradient(135deg, #10151f 0%, #1a2333 100%); border: 1px solid var(--api-blue); border-radius: 8px; padding: 20px; margin: 0 auto 20px auto; max-width: 1400px; display: flex; align-items: center; gap: 15px; box-shadow: 0 0 15px rgba(0, 176, 255, 0.1); }
+        .radar-panel input { padding: 12px; font-size: 16px; font-weight: bold; background-color: #000; color: var(--api-blue); border: 1px solid var(--api-blue); border-radius: 4px; width: 200px; text-transform: uppercase; }
         .radar-panel input:focus { outline: none; box-shadow: 0 0 8px var(--api-blue); }
-        .btn-radar {
-            padding: 12px 25px; font-size: 16px; font-weight: bold; background-color: rgba(0, 176, 255, 0.1);
-            color: var(--api-blue); border: 1px solid var(--api-blue); border-radius: 4px;
-            cursor: pointer; transition: 0.3s;
-        }
+        .btn-radar { padding: 12px 25px; font-size: 16px; font-weight: bold; background-color: rgba(0, 176, 255, 0.1); color: var(--api-blue); border: 1px solid var(--api-blue); border-radius: 4px; cursor: pointer; transition: 0.3s; }
         .btn-radar:hover { background-color: var(--api-blue); color: #000; }
         .radar-status { color: var(--text-muted); font-size: 13px; margin-left: auto; }
 
@@ -63,33 +27,32 @@
         .form-group { margin-bottom: 15px; }
         .form-group > label { display: block; font-size: 13px; color: #8ab4f8; margin-bottom: 8px; font-weight: bold; }
         .sub-label { font-size: 11px; color: var(--text-muted); margin-bottom: 3px; display: block; }
+        
         .form-group input, .form-group select { width: 100%; padding: 8px; box-sizing: border-box; background-color: #0b0e14; border: 1px solid var(--border-color); color: var(--text-main); border-radius: 4px; transition: border 0.3s; }
         .form-group input:focus, .form-group select:focus { border-color: var(--accent-green); outline: none; }
-        .form-group input.auto-filled { border-color: var(--api-blue); background-color: rgba(0, 176, 255, 0.05); } /* 自动填充的视觉反馈 */
+        .form-group input.auto-filled { border-color: var(--api-blue); background-color: rgba(0, 176, 255, 0.05); }
+        .form-group input.error-alert { border-color: var(--accent-red); background-color: rgba(255, 61, 0, 0.05); } 
         
         .btn-execute { width: 100%; padding: 15px; font-size: 18px; font-weight: bold; background-color: #2a3241; color: var(--text-main); border: 2px solid var(--border-color); border-radius: 4px; cursor: pointer; transition: 0.3s; margin-top: 20px; }
         .btn-execute:hover { background-color: var(--accent-green); color: #000; border-color: var(--accent-green); }
         .btn-execute:active { transform: scale(0.98); }
         
         #resultPanel { grid-column: span 3; background-color: #000; padding: 20px; border-left: 4px solid var(--border-color); font-family: monospace; white-space: pre-wrap; min-height: 150px; font-size: 15px; line-height: 1.6; transition: border-left-color 0.3s ease; }
-        .pass { color: var(--accent-green); }
-        .fail { color: var(--accent-red); }
-        .warning { color: #ffd600; }
-        .title { color: #8ab4f8; font-weight: bold; }
+        .pass { color: var(--accent-green); } .fail { color: var(--accent-red); } .warning { color: var(--warning-yellow); } .api-text { color: var(--api-blue); } .title { color: #8ab4f8; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>双因子猎手 V9.4 自动雷达指挥舱</h1>
-        <p>API 半自动侦察注入！机器抓取基础数据，人工核对战术指标</p>
+        <h1>双因子猎手 V9.5 究极定制雷达舱</h1>
+        <p>防呆换算注入 | 容错警报 | 灵活倍数卡控 | 机器主外，人类主内</p>
     </div>
 
     <div class="radar-panel">
         <label style="color:var(--api-blue); font-weight:bold;">📡 目标锁定 :</label>
-        <input type="text" id="apiCodeInput" placeholder="输入代码 (如 300750)" autocomplete="off">
+        <input type="text" id="apiCodeInput" placeholder="输入代码 (如 600864)" autocomplete="off">
         <button class="btn-radar" onclick="fetchStockAPI()">⚡ 一键 API 自动侦察</button>
-        <span id="radarStatus" class="radar-status">系统就绪，等待获取数据...</span>
+        <span id="radarStatus" class="radar-status">系统就绪，等待统帅输入指令...</span>
     </div>
 
     <div class="grid-container">
@@ -97,7 +60,10 @@
         <div class="card">
             <h2>🛡️ 1. 市场基本面 (调研防线)</h2>
             <div class="form-group"><label>标的名称</label><input type="text" id="stockName" value="等待侦察..."></div>
-            <div class="form-group"><label>市盈率 (PE TTM) [要求: 0-50]</label><input type="number" id="pe" value="0"></div>
+            <div class="form-group"><label>市盈率 (PE TTM) [要求: 0-50]</label>
+                <span class="sub-label" style="color:#ff3d00" id="peAlert"></span>
+                <input type="number" id="pe" value="0">
+            </div>
             <div class="form-group"><label>经营现金流状态 (需人工确认)</label>
                 <select id="cashFlow"><option value="yes">充沛 (正向造血)</option><option value="no">枯竭 (负向预警)</option></select>
             </div>
@@ -108,15 +74,13 @@
             <div class="form-group"><label>当前现价 (元)</label><input type="number" id="price" value="0"></div>
             
             <div class="form-group"><label>成交量测算 (单位：手)</label>
-                <div style="display:flex; gap:10px;">
-                    <div style="flex:1;">
-                        <span class="sub-label">今日成交量 (API获取)</span>
-                        <input type="number" id="volToday" value="0">
-                    </div>
-                    <div style="flex:1;">
-                        <span class="sub-label">20日均量 (需人工输入)</span>
-                        <input type="number" id="vol20Days" value="0">
-                    </div>
+                <div style="display:flex; gap:10px; margin-bottom: 8px;">
+                    <div style="flex:1;"><span class="sub-label">今日成交量 (API获取)</span><input type="number" id="volToday" value="0"></div>
+                    <div style="flex:1;"><span class="sub-label">20日均量 (若是万手直接输，如3.8)</span><input type="number" id="vol20Days" value="0"></div>
+                </div>
+                <div style="flex:1;">
+                    <span class="sub-label api-text">🎯 要求量能放大倍数 (默认 1.5 倍)</span>
+                    <input type="number" id="volTarget" value="1.5" step="0.1">
                 </div>
             </div>
 
@@ -124,14 +88,8 @@
             
             <div class="form-group"><label>RSI 动能指标 (需人工)</label>
                 <div style="display:flex; gap:10px;">
-                    <div style="flex:1;">
-                        <span class="sub-label">日线 RSI [50-75]</span>
-                        <input type="number" id="rsiDaily" value="0">
-                    </div>
-                    <div style="flex:1;">
-                        <span class="sub-label">月线 RSI [<=70]</span>
-                        <input type="number" id="rsiMonthly" value="0">
-                    </div>
+                    <div style="flex:1;"><span class="sub-label">日线 RSI [50-75]</span><input type="number" id="rsiDaily" value="0"></div>
+                    <div style="flex:1;"><span class="sub-label">月线 RSI [<=70]</span><input type="number" id="rsiMonthly" value="0"></div>
                 </div>
             </div>
         </div>
@@ -153,18 +111,16 @@
 
     <script>
         // ==========================================
-        // V9.4 新增：腾讯 API JSONP 跨域请求引擎
+        // V9.5：API 获取与容错处理引擎
         // ==========================================
         function fetchStockAPI() {
             let code = document.getElementById('apiCodeInput').value.trim().toLowerCase();
             const statusBox = document.getElementById('radarStatus');
+            const peInput = document.getElementById('pe');
+            const peAlert = document.getElementById('peAlert');
             
-            if(!code || code.length < 6) {
-                statusBox.innerHTML = "<span class='fail'>❌ 代码无效，请输入6位股票代码</span>";
-                return;
-            }
+            if(!code || code.length < 6) { statusBox.innerHTML = "<span class='fail'>❌ 代码无效，请输入6位代码</span>"; return; }
 
-            // 智能补全前缀 (sh/sz)
             if (/^\d{6}$/.test(code)) {
                 if (code.startsWith('6')) code = 'sh' + code;
                 else if (code.startsWith('0') || code.startsWith('3')) code = 'sz' + code;
@@ -172,8 +128,9 @@
             }
 
             statusBox.innerHTML = "<span style='color:var(--api-blue);'>📡 正在跨域连接极速服务器...</span>";
+            peInput.classList.remove('error-alert', 'auto-filled');
+            peAlert.innerText = "";
 
-            // 动态创建 Script 标签实现跨域 (JSONP)
             let script = document.createElement('script');
             script.src = 'https://qt.gtimg.cn/q=' + code;
             
@@ -182,40 +139,43 @@
                 if (window[varName]) {
                     let data = window[varName].split('~');
                     if (data.length > 10) {
-                        // 解析腾讯接口数据填入表单，并添加高亮 class
                         let elName = document.getElementById('stockName');
                         let elPrice = document.getElementById('price');
-                        let elPE = document.getElementById('pe');
                         let elVol = document.getElementById('volToday');
 
-                        elName.value = data[1];          // 指数1：股票名称
-                        elPrice.value = data[3];         // 指数3：现价
-                        elPE.value = data[39] !== '' ? data[39] : 0; // 指数39：市盈率 TTM
-                        elVol.value = data[36];          // 指数36：今日成交量 (手)
+                        elName.value = data[1];
+                        elPrice.value = data[3];
+                        elVol.value = data[36];
+                        [elName, elPrice, elVol].forEach(el => el.classList.add('auto-filled'));
 
-                        // 添加视觉高亮反馈
-                        [elName, elPrice, elPE, elVol].forEach(el => el.classList.add('auto-filled'));
+                        // 【核心容错】：处理 TTM 获取不到的情况
+                        let peValue = data[39];
+                        if (peValue !== '' && parseFloat(peValue) > 0) {
+                            peInput.value = parseFloat(peValue);
+                            peInput.classList.add('auto-filled');
+                        } else {
+                            peInput.value = ""; // 清空错误数据
+                            peInput.classList.add('error-alert');
+                            peAlert.innerText = "⚠️ API 无法获取 TTM，请人工填入！";
+                        }
 
-                        statusBox.innerHTML = "<span class='pass'>✅ 侦察成功！基础数据已自动填入。请人工补全指标！</span>";
+                        statusBox.innerHTML = "<span class='pass'>✅ 侦察成功！基础数据已填，请留意红色警示框。</span>";
                     } else {
-                        statusBox.innerHTML = "<span class='fail'>❌ 查无此股或停牌，请检查代码。</span>";
+                        statusBox.innerHTML = "<span class='fail'>❌ 查无此股或停牌。</span>";
                     }
                 }
             };
-            script.onerror = function() {
-                statusBox.innerHTML = "<span class='fail'>❌ 网络连接失败，请手动输入数据。</span>";
-            };
-            
+            script.onerror = function() { statusBox.innerHTML = "<span class='fail'>❌ 网络连接失败。</span>"; };
             document.body.appendChild(script);
         }
 
         // ==========================================
-        // 核心审判引擎 (保留 V9.3 逻辑)
+        // 核心审判引擎
         // ==========================================
         function executeSystem() {
             const panel = document.getElementById('resultPanel');
             panel.style.borderLeftColor = "var(--border-color)";
-            panel.innerHTML = "<span class='warning'>⏳ 接收最新参数... 正在启动机器深度核算...</span>\n";
+            panel.innerHTML = "<span class='warning'>⏳ 正在启动机器深度核算...</span>\n";
 
             setTimeout(() => {
                 const stockName = document.getElementById('stockName').value;
@@ -223,8 +183,20 @@
                 const cashFlow = document.getElementById('cashFlow').value;
                 const price = parseFloat(document.getElementById('price').value);
                 const volToday = parseFloat(document.getElementById('volToday').value);
-                const vol20Days = parseFloat(document.getElementById('vol20Days').value);
-                const volMultiplier = volToday / vol20Days;
+                
+                // 【V9.5 智能换算防呆】
+                let rawVol20 = parseFloat(document.getElementById('vol20Days').value);
+                let vol20Days = rawVol20;
+                let volConvertLog = "";
+                if (rawVol20 > 0 && rawVol20 < 10000) {
+                    vol20Days = rawVol20 * 10000;
+                    volConvertLog = `\n   <span class="api-text">🤖 机器防呆：检测到均量输入为 ${rawVol20}，已自动换算为 ${vol20Days} 手！</span>`;
+                }
+
+                // 【V9.5 自定义目标倍数】
+                const volTarget = parseFloat(document.getElementById('volTarget').value) || 1.5;
+                const volMultiplier = vol20Days > 0 ? (volToday / vol20Days) : 0;
+
                 const bias = parseFloat(document.getElementById('bias').value);
                 const rsiDaily = parseFloat(document.getElementById('rsiDaily').value);
                 const rsiMonthly = parseFloat(document.getElementById('rsiMonthly').value);
@@ -236,14 +208,17 @@
                 let isPass = true;
                 let fails = [];
 
-                if (pe < 0 || pe > 50) { isPass = false; fails.push(`市场面死刑：PE(${pe})不在 0~50 范围，脱离基本面安全垫！`); }
-                if (cashFlow === 'no') { isPass = false; fails.push("市场面死刑：现金流枯竭，企业缺乏真实造血能力！"); }
-                if (vol20Days <= 0 || isNaN(volMultiplier)) { isPass = false; fails.push("参数错误：请正确输入20日均量以便计算量能倍数！"); } 
-                else if (volMultiplier < 1.5) { isPass = false; fails.push(`技术面死刑：量能仅放大 ${volMultiplier.toFixed(2)} 倍 (未达1.5倍)，无主力资金共振！`); }
-                if (bias < 0 || bias > 15) { isPass = false; fails.push(`技术面死刑：BIAS 为 ${bias}%，偏离 0~15% 安全进场点！`); }
-                if (rsiDaily < 50 || rsiDaily > 75) { isPass = false; fails.push(`技术面死刑：日线 RSI 为 ${rsiDaily}，相对强弱动能不佳！`); }
-                if (rsiMonthly > 70) { isPass = false; fails.push(`技术面死刑：月线 RSI 高达 ${rsiMonthly}，大周期面临回调爆缸风险！`); }
-                if (profitRatio < 30) { isPass = false; fails.push(`技术面死刑：获利比例仅 ${profitRatio}%，上方套牢盘抛压极大！`); }
+                if (isNaN(pe) || pe < 0 || pe > 50) { isPass = false; fails.push(`基本面死刑：PE(${pe})无效或不在0~50范围！`); }
+                if (cashFlow === 'no') { isPass = false; fails.push("基本面死刑：现金流枯竭，缺乏造血能力！"); }
+                
+                // 使用自定义的 volTarget 进行拦截
+                if (vol20Days <= 0) { isPass = false; fails.push("参数错误：请正确输入20日均量！"); } 
+                else if (volMultiplier < volTarget) { isPass = false; fails.push(`技术面死刑：量能仅 ${volMultiplier.toFixed(2)} 倍，未达你设定的 ${volTarget} 倍红线！`); }
+                
+                if (bias < 0 || bias > 15) { isPass = false; fails.push(`技术面死刑：BIAS 为 ${bias}%，偏离 0~15% 安全点！`); }
+                if (rsiDaily < 50 || rsiDaily > 75) { isPass = false; fails.push(`技术面死刑：日线 RSI 为 ${rsiDaily}，动能不佳！`); }
+                if (rsiMonthly > 70) { isPass = false; fails.push(`技术面死刑：月线 RSI 高达 ${rsiMonthly}，面临回调风险！`); }
+                if (profitRatio < 30) { isPass = false; fails.push(`技术面死刑：获利比例仅 ${profitRatio}%，抛压极大！`); }
 
                 const stopPrice = price - (1.5 * atr);
                 let rrFinal = 0;
@@ -251,15 +226,16 @@
                     isPass = false; fails.push("风控死刑：预设止盈点位必须高于现价！");
                 } else {
                     rrFinal = (targetPrice - price) / (price - stopPrice);
-                    if (rrFinal < 2) { isPass = false; fails.push(`风控死刑：盈亏比仅为 ${rrFinal.toFixed(2)} (<2)，拿命博铜板，严禁开火！`); }
+                    if (rrFinal < 2) { isPass = false; fails.push(`风控死刑：盈亏比仅为 ${rrFinal.toFixed(2)} (<2)！`); }
                 }
 
                 if (!isPass) {
                     panel.style.borderLeftColor = "var(--accent-red)";
                     let out = `<span class="fail">🚫 统帅指令：【多周期排雷失败，一票否决，禁止开火！】</span>\n\n`;
                     fails.forEach(f => out += ` ❌ ${f}\n`);
-                    out += `\n<span class="warning">💡 【量能参数核对】：今日量能倍数为 ${volMultiplier.toFixed(2)} 倍。</span>\n`;
-                    out += `<span class="title">【准则四：心态控制】</span>\n<span class="warning">机器已切断你的非理性贪婪，立刻放弃该标的，管住手！</span>`;
+                    out += volConvertLog; // 输出防呆日志
+                    out += `\n<span class="warning">💡 【量能参数核对】：量能放大 ${volMultiplier.toFixed(2)} 倍 (目标 $\ge$ ${volTarget} 倍)。</span>\n`;
+                    out += `<span class="title">【准则四：心态控制】</span>\n<span class="warning">机器已切断你的非理性贪婪，立刻放弃该标的！</span>`;
                     panel.innerHTML = out;
                     return;
                 }
@@ -272,7 +248,7 @@
 
                 if (maxShares === 0) {
                     panel.style.borderLeftColor = "var(--accent-red)";
-                    panel.innerHTML = `<span class="fail">🚨 【统帅最高级别风控警告：资金超载！】</span>\n买1手的风险(${riskPerLot.toFixed(2)}元)已击穿账户总资金1.5%的护甲(${maxRiskAmount.toFixed(2)}元)！标的波动绝对值过大，严禁开火！`;
+                    panel.innerHTML = `<span class="fail">🚨 【统帅最高级别风控警告：资金超载！】</span>\n买1手的风险(${riskPerLot.toFixed(2)}元)已击穿总资金1.5%的护甲(${maxRiskAmount.toFixed(2)}元)！波动过大，严禁开火！`;
                     return;
                 }
 
@@ -282,16 +258,16 @@
                 out += ` <span class="title">⚔️ 【行动纲领指令执行】 ⚔️</span> \n`;
                 out += `🎯 猎物代号: ${stockName}\n`;
                 out += `<span class="fail">🔴 绝对止损点位: ${stopPrice.toFixed(2)} 元 (买入瞬间必须挂载条件单)</span>\n`;
-                out += `<span class="pass">📈 核心数据: 盈亏比 ${rrFinal.toFixed(2)} | 量能倍数 ${volMultiplier.toFixed(2)} 倍</span>\n`;
-                out += `🛡️ 仓位配置: 极限总仓位 ${maxShares} 股 (本金单次风险<1.5%)\n\n`;
-                
-                out += `<span class="warning">🚀 【战术进场动作】：</span>\n`;
+                out += `<span class="pass">📈 核心数据: 盈亏比 ${rrFinal.toFixed(2)} | 量能 ${volMultiplier.toFixed(2)} 倍 (达标 ${volTarget}倍)</span>\n`;
+                out += `🛡️ 仓位配置: 极限总仓位 ${maxShares} 股 (本金单次风险<1.5%)\n`;
+                out += volConvertLog; // 输出防呆日志
+                out += `\n\n<span class="warning">🚀 【战术进场动作】：</span>\n`;
                 out += `   >> 准许在 14:50 进场，首发 50% 底仓：【 ${firstStrike === 0 ? "按最低1手建仓，绝不超载" : firstStrike + " 股"} 】！\n\n`;
                 
                 out += `<span class="title">📝 【准则五：动态复盘档案】(请一键复制归档)：</span>\n`;
-                out += `日期：${new Date().toLocaleDateString()} | 标的：${stockName} | 动作：首发 ${firstStrike === 0 ? 100 : firstStrike} 股\n`;
+                out += `日期：${new Date().toLocaleDateString()} | 标的：${stockName} | 首发 ${firstStrike === 0 ? 100 : firstStrike} 股\n`;
                 out += `市场分析：基本面PE ${pe} 且现金流达标。\n`;
-                out += `技术研判：量能 ${volMultiplier.toFixed(2)} 倍。BIAS ${bias}%，RSI健康(${rsiDaily})。获利比例 ${profitRatio}%。\n`;
+                out += `技术研判：量能突破 ${volTarget}倍红线 (实达 ${volMultiplier.toFixed(2)} 倍)。BIAS ${bias}%，RSI健康(${rsiDaily})。获利比例 ${profitRatio}%。\n`;
                 out += `风控纪律：止损 ${stopPrice.toFixed(2)}，止盈 ${targetPrice.toFixed(2)}，盈亏比达 ${rrFinal.toFixed(2)}。\n`;
                 
                 panel.innerHTML = out;
