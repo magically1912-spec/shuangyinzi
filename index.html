@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>双因子猎手 V9.5 | 究极定制雷达舱</title>
+    <title>双因子猎手 V9.7 | 蓝天白云雷达舱</title>
     <style>
         :root {
             --bg-color: #0b0e14; --panel-bg: #151a22; --text-main: #e0e6ed;
@@ -38,14 +38,14 @@
         .btn-execute:active { transform: scale(0.98); }
         
         #resultPanel { grid-column: span 3; background-color: #000; padding: 20px; border-left: 4px solid var(--border-color); font-family: monospace; white-space: pre-wrap; min-height: 150px; font-size: 15px; line-height: 1.6; transition: border-left-color 0.3s ease; }
-        .pass { color: var(--accent-green); } .fail { color: var(--accent-red); } .warning { color: var(--warning-yellow); } .api-text { color: var(--api-blue); } .title { color: #8ab4f8; font-weight: bold; }
+        .pass { color: var(--accent-green); } .fail { color: var(--accent-red); } .warning { color: var(--warning-yellow); } .api-text { color: var(--api-blue); font-weight: bold; } .title { color: #8ab4f8; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>双因子猎手 V9.5 究极定制雷达舱</h1>
-        <p>防呆换算注入 | 容错警报 | 灵活倍数卡控 | 机器主外，人类主内</p>
+        <h1>双因子猎手 V9.7 蓝天白云雷达舱</h1>
+        <p>API 自动侦察 | 防呆换算 | 灵活倍数卡控 | 3R 自动巡航</p>
     </div>
 
     <div class="radar-panel">
@@ -98,8 +98,16 @@
             <h2>⚖️ 3. 风险管理 (盈亏精算)</h2>
             <div class="form-group"><label>账户总资金 (元)</label><input type="number" id="capital" value="100000"></div>
             <div class="form-group"><label>今日 ATR(14) 数值 (需人工)</label><input type="number" id="atr" value="0"></div>
-            <div class="form-group"><label>预期止盈点位 / 阻力位 (需人工)</label><input type="number" id="targetPrice" value="0"></div>
-            <div class="form-group"><label>筹码获利比例 [%] (需人工)</label><input type="number" id="profitRatio" value="0"></div>
+            
+            <div class="form-group">
+                <label>预期止盈点位 (有阻力填数字，突破新高无阻力请<span class="api-text">【清空留白】</span>)</label>
+                <input type="number" id="targetPrice" placeholder="留空则自动激活 3R 巡航" value="">
+            </div>
+            
+            <div class="form-group">
+                <label>筹码获利比例 [%] (常规填软件数值，突破新高请<span class="api-text">【填入 100】</span>)</label>
+                <input type="number" id="profitRatio" placeholder="若突破新高无脑填100" value="0">
+            </div>
         </div>
 
         <div style="grid-column: span 3;">
@@ -110,9 +118,6 @@
     </div>
 
     <script>
-        // ==========================================
-        // V9.5：API 获取与容错处理引擎
-        // ==========================================
         function fetchStockAPI() {
             let code = document.getElementById('apiCodeInput').value.trim().toLowerCase();
             const statusBox = document.getElementById('radarStatus');
@@ -148,13 +153,12 @@
                         elVol.value = data[36];
                         [elName, elPrice, elVol].forEach(el => el.classList.add('auto-filled'));
 
-                        // 【核心容错】：处理 TTM 获取不到的情况
                         let peValue = data[39];
                         if (peValue !== '' && parseFloat(peValue) > 0) {
                             peInput.value = parseFloat(peValue);
                             peInput.classList.add('auto-filled');
                         } else {
-                            peInput.value = ""; // 清空错误数据
+                            peInput.value = ""; 
                             peInput.classList.add('error-alert');
                             peAlert.innerText = "⚠️ API 无法获取 TTM，请人工填入！";
                         }
@@ -169,9 +173,6 @@
             document.body.appendChild(script);
         }
 
-        // ==========================================
-        // 核心审判引擎
-        // ==========================================
         function executeSystem() {
             const panel = document.getElementById('resultPanel');
             panel.style.borderLeftColor = "var(--border-color)";
@@ -184,16 +185,14 @@
                 const price = parseFloat(document.getElementById('price').value);
                 const volToday = parseFloat(document.getElementById('volToday').value);
                 
-                // 【V9.5 智能换算防呆】
                 let rawVol20 = parseFloat(document.getElementById('vol20Days').value);
                 let vol20Days = rawVol20;
                 let volConvertLog = "";
                 if (rawVol20 > 0 && rawVol20 < 10000) {
                     vol20Days = rawVol20 * 10000;
-                    volConvertLog = `\n   <span class="api-text">🤖 机器防呆：检测到均量输入为 ${rawVol20}，已自动换算为 ${vol20Days} 手！</span>`;
+                    volConvertLog = `\n   <span class="api-text">🤖 [防呆装甲] 介入：均量输入为 ${rawVol20}，已自动换算为 ${vol20Days} 手。</span>`;
                 }
 
-                // 【V9.5 自定义目标倍数】
                 const volTarget = parseFloat(document.getElementById('volTarget').value) || 1.5;
                 const volMultiplier = vol20Days > 0 ? (volToday / vol20Days) : 0;
 
@@ -202,8 +201,9 @@
                 const rsiMonthly = parseFloat(document.getElementById('rsiMonthly').value);
                 const capital = parseFloat(document.getElementById('capital').value);
                 const atr = parseFloat(document.getElementById('atr').value);
-                const targetPrice = parseFloat(document.getElementById('targetPrice').value);
                 const profitRatio = parseFloat(document.getElementById('profitRatio').value);
+                
+                const targetPriceInput = document.getElementById('targetPrice').value.trim();
 
                 let isPass = true;
                 let fails = [];
@@ -211,21 +211,33 @@
                 if (isNaN(pe) || pe < 0 || pe > 50) { isPass = false; fails.push(`基本面死刑：PE(${pe})无效或不在0~50范围！`); }
                 if (cashFlow === 'no') { isPass = false; fails.push("基本面死刑：现金流枯竭，缺乏造血能力！"); }
                 
-                // 使用自定义的 volTarget 进行拦截
                 if (vol20Days <= 0) { isPass = false; fails.push("参数错误：请正确输入20日均量！"); } 
                 else if (volMultiplier < volTarget) { isPass = false; fails.push(`技术面死刑：量能仅 ${volMultiplier.toFixed(2)} 倍，未达你设定的 ${volTarget} 倍红线！`); }
                 
                 if (bias < 0 || bias > 15) { isPass = false; fails.push(`技术面死刑：BIAS 为 ${bias}%，偏离 0~15% 安全点！`); }
                 if (rsiDaily < 50 || rsiDaily > 75) { isPass = false; fails.push(`技术面死刑：日线 RSI 为 ${rsiDaily}，动能不佳！`); }
                 if (rsiMonthly > 70) { isPass = false; fails.push(`技术面死刑：月线 RSI 高达 ${rsiMonthly}，面临回调风险！`); }
-                if (profitRatio < 30) { isPass = false; fails.push(`技术面死刑：获利比例仅 ${profitRatio}%，抛压极大！`); }
+                
+                // 修复防呆逻辑：如果用户连 0 都不输，或者留空，将触发警告
+                if (isNaN(profitRatio) || profitRatio < 30) { isPass = false; fails.push(`技术面死刑：获利比例仅 ${isNaN(profitRatio)?'0':profitRatio}%，抛压极大！(突破新高必须填100)`); }
 
                 const stopPrice = price - (1.5 * atr);
+                const riskPerShare = price - stopPrice;
+                let targetPrice;
+                let isAuto3R = false;
+
+                if (targetPriceInput === "") {
+                    targetPrice = price + (riskPerShare * 3);
+                    isAuto3R = true;
+                } else {
+                    targetPrice = parseFloat(targetPriceInput);
+                }
+
                 let rrFinal = 0;
                 if (targetPrice <= price) {
-                    isPass = false; fails.push("风控死刑：预设止盈点位必须高于现价！");
+                    isPass = false; fails.push("风控死刑：预期止盈价必须高于现价！");
                 } else {
-                    rrFinal = (targetPrice - price) / (price - stopPrice);
+                    rrFinal = (targetPrice - price) / riskPerShare;
                     if (rrFinal < 2) { isPass = false; fails.push(`风控死刑：盈亏比仅为 ${rrFinal.toFixed(2)} (<2)！`); }
                 }
 
@@ -233,7 +245,7 @@
                     panel.style.borderLeftColor = "var(--accent-red)";
                     let out = `<span class="fail">🚫 统帅指令：【多周期排雷失败，一票否决，禁止开火！】</span>\n\n`;
                     fails.forEach(f => out += ` ❌ ${f}\n`);
-                    out += volConvertLog; // 输出防呆日志
+                    out += volConvertLog; 
                     out += `\n<span class="warning">💡 【量能参数核对】：量能放大 ${volMultiplier.toFixed(2)} 倍 (目标 $\ge$ ${volTarget} 倍)。</span>\n`;
                     out += `<span class="title">【准则四：心态控制】</span>\n<span class="warning">机器已切断你的非理性贪婪，立刻放弃该标的！</span>`;
                     panel.innerHTML = out;
@@ -241,7 +253,6 @@
                 }
 
                 const maxRiskAmount = capital * 0.015;
-                const riskPerShare = price - stopPrice;
                 const riskPerLot = riskPerShare * 100;
                 const maxShares = Math.floor((maxRiskAmount / riskPerShare) / 100) * 100;
                 const firstStrike = Math.floor((maxShares * 0.5) / 100) * 100;
@@ -258,17 +269,29 @@
                 out += ` <span class="title">⚔️ 【行动纲领指令执行】 ⚔️</span> \n`;
                 out += `🎯 猎物代号: ${stockName}\n`;
                 out += `<span class="fail">🔴 绝对止损点位: ${stopPrice.toFixed(2)} 元 (买入瞬间必须挂载条件单)</span>\n`;
-                out += `<span class="pass">📈 核心数据: 盈亏比 ${rrFinal.toFixed(2)} | 量能 ${volMultiplier.toFixed(2)} 倍 (达标 ${volTarget}倍)</span>\n`;
+                
+                if (isAuto3R) {
+                    out += `<span class="pass">📈 核心数据: 盈亏比 ${rrFinal.toFixed(2)} | 量能 ${volMultiplier.toFixed(2)} 倍</span>\n`;
+                    out += `   <span class="api-text">>> 🤖 [蓝天白云引擎] 启动：系统已生成 3R 理论止盈价 [${targetPrice.toFixed(2)} 元] 放行开火权限！实战请挂 MA20 移动止损！</span>\n`;
+                } else {
+                    out += `<span class="pass">📈 核心数据: 盈亏比 ${rrFinal.toFixed(2)} | 量能 ${volMultiplier.toFixed(2)} 倍 (预设止盈: ${targetPrice.toFixed(2)})</span>\n`;
+                }
+
                 out += `🛡️ 仓位配置: 极限总仓位 ${maxShares} 股 (本金单次风险<1.5%)\n`;
-                out += volConvertLog; // 输出防呆日志
+                out += volConvertLog; 
                 out += `\n\n<span class="warning">🚀 【战术进场动作】：</span>\n`;
                 out += `   >> 准许在 14:50 进场，首发 50% 底仓：【 ${firstStrike === 0 ? "按最低1手建仓，绝不超载" : firstStrike + " 股"} 】！\n\n`;
                 
                 out += `<span class="title">📝 【准则五：动态复盘档案】(请一键复制归档)：</span>\n`;
                 out += `日期：${new Date().toLocaleDateString()} | 标的：${stockName} | 首发 ${firstStrike === 0 ? 100 : firstStrike} 股\n`;
                 out += `市场分析：基本面PE ${pe} 且现金流达标。\n`;
-                out += `技术研判：量能突破 ${volTarget}倍红线 (实达 ${volMultiplier.toFixed(2)} 倍)。BIAS ${bias}%，RSI健康(${rsiDaily})。获利比例 ${profitRatio}%。\n`;
-                out += `风控纪律：止损 ${stopPrice.toFixed(2)}，止盈 ${targetPrice.toFixed(2)}，盈亏比达 ${rrFinal.toFixed(2)}。\n`;
+                out += `技术研判：量能 ${volMultiplier.toFixed(2)} 倍。BIAS ${bias}%，RSI健康(${rsiDaily})。获利比例 ${profitRatio}%。\n`;
+                
+                if (isAuto3R) {
+                    out += `风控纪律：绝对止损 ${stopPrice.toFixed(2)}。该标的突破无阻力，启用 3R 虚拟止盈放行，实盘采用 MA20 动态追踪止盈。\n`;
+                } else {
+                    out += `风控纪律：止损 ${stopPrice.toFixed(2)}，预期止盈 ${targetPrice.toFixed(2)}，盈亏比达 ${rrFinal.toFixed(2)}。\n`;
+                }
                 
                 panel.innerHTML = out;
             }, 300); 
