@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>双因子猎手 V11.3 | 终极抗干扰版</title>
+    <title>双因子猎手 V12.1 | 终极融合版</title>
     <style>
         :root {
             --bg-color: #0b0e14; --panel-bg: #151a22; --text-main: #e0e6ed;
@@ -17,7 +17,8 @@
         .regime-selector { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 12px; }
         .regime-selector label { font-size: 16px; font-weight: bold; color: var(--warning-yellow); }
         .regime-selector select { padding: 10px; font-size: 15px; font-weight: bold; background: #000; color: #fff; border: 1px solid var(--warning-yellow); border-radius: 4px; cursor: pointer; outline: none; }
-        .btn-auto { background: var(--warning-yellow); color: #000; font-weight: bold; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-auto { background: var(--warning-yellow); color: #000; font-weight: bold; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; transition: 0.3s;}
+        .btn-auto:hover { background: #fff; }
         
         .manual-guide { text-align: center; font-size: 13px; color: #8ab4f8; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 4px; width: fit-content; margin: 0 auto; border: 1px dashed #8ab4f8; }
 
@@ -47,8 +48,8 @@
 <body>
 
     <div class="header">
-        <h1>双因子猎手 V11.3 终极抗干扰版</h1>
-        <p>自动水位侦测 | 手动刻度辅助 | 策略全量解耦</p>
+        <h1>双因子猎手 V12.1 终极融合版</h1>
+        <p>量能一票否决 | 严控 TTM 估值 | 状态机自适应切换</p>
     </div>
 
     <div class="regime-container">
@@ -72,7 +73,7 @@
     <div class="radar-panel" id="radarPanel">
         <label style="color:var(--api-blue); font-weight:bold;">🎯 代码锁定 :</label>
         <input type="text" id="apiCodeInput" placeholder="如 000001">
-        <button style="padding:10px 20px; cursor:pointer;" onclick="fetchStockAPI()">⚡ 抓取个股</button>
+        <button style="padding:10px 20px; cursor:pointer;" onclick="fetchStockAPI()">⚡ 极速抓取</button>
         <span id="radarStatus" style="font-size: 12px; color: var(--text-muted); margin-left:auto;">等待指令...</span>
     </div>
 
@@ -91,11 +92,15 @@
                 <label>预期止盈 (留空则自动3R)</label>
                 <input type="number" id="targetPrice">
             </div>
-            <div class="form-group"><label>获利筹码比例 [%]</label><input type="number" id="profitRatio" value="100"></div>
+            <div class="form-group bull-only" style="display:none;">
+                <label>🎯 要求量能倍数 (默认 1.5)</label>
+                <input type="number" id="volTarget" value="1.5" step="0.1">
+            </div>
+            <div class="form-group"><label>获利筹码比例 [%] (新高填100)</label><input type="number" id="profitRatio" value="100"></div>
         </div>
 
         <div class="card">
-            <h2>🔭 2. 量价动能测距</h2>
+            <h2>🔭 2. 量价动能测距 (多周期)</h2>
             <div class="form-group"><label>标的名字</label><input type="text" id="stockName" readonly></div>
             <div class="form-group"><label>当前现价</label><input type="number" id="price" step="0.01"></div>
             <div style="display:flex; gap:5px;">
@@ -104,22 +109,26 @@
             </div>
             <div style="display:flex; gap:5px;">
                 <div class="form-group"><label>BIAS(60)</label><input type="number" id="bias"></div>
-                <div class="form-group"><label>RSI(14)</label><input type="number" id="rsi"></div>
+                <div class="form-group"><label>日线RSI(14)</label><input type="number" id="rsi"></div>
+            </div>
+            <div class="form-group" style="margin-top: 5px;">
+                <label style="color:#ff3d00;">大周期：月线 RSI (要求<=70)</label>
+                <input type="number" id="rsiMonthly" value="50">
             </div>
         </div>
 
         <div class="card">
-            <h2>⚖️ 3. 资金与风控</h2>
+            <h2>⚖️ 3. 资金与基本面风控</h2>
             <div class="form-group"><label>总资金</label><input type="number" id="capital" value="100000"></div>
-            <div class="form-group"><label>动态 PE</label><input type="number" id="pe"></div>
+            <div class="form-group"><label>市盈率 (TTM) [严禁画饼]</label><input type="number" id="pe"></div>
             <div class="form-group"><label>今日 ATR</label><input type="number" id="atr" step="0.01"></div>
-            <div class="form-group"><label>现金流为正？</label>
+            <div class="form-group"><label>现金流为正？(造血能力)</label>
                 <select id="cashFlow"><option value="yes">是</option><option value="no">否</option></select>
             </div>
         </div>
 
         <div style="grid-column: span 3;">
-            <button class="btn-execute" id="execBtn" onclick="executeSystem()">⚡ 执行审判</button>
+            <button class="btn-execute" id="execBtn" onclick="executeSystem()">⚡ 数据录入完毕，执行终端审判</button>
         </div>
         
         <div id="resultPanel">等待统帅录入...</div>
@@ -129,15 +138,13 @@
         function autoDetectRegime() {
             const btn = document.getElementById('autoBtn');
             btn.innerText = "📡 数据侦察中...";
-            
             const script = document.createElement('script');
             script.src = 'https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?_var=kline_sh&param=sh000001,day,,,60';
             script.onload = function() {
                 try {
                     const days = window.kline_sh.data.sh000001.day;
                     const latestClose = parseFloat(days[days.length-1][2]);
-                    let sum = 0;
-                    days.forEach(d => sum += parseFloat(d[2]));
+                    let sum = 0; days.forEach(d => sum += parseFloat(d[2]));
                     const ma60 = sum / days.length;
                     
                     const regimeSelect = document.getElementById('marketRegime');
@@ -145,13 +152,13 @@
                     else if (latestClose < ma60 * 0.98) regimeSelect.value = 'bear';
                     else regimeSelect.value = 'osc';
                     
-                    alert(`[大盘校准成功]\n最新上证指数: ${latestClose.toFixed(2)}\n60日均线(MA60): ${ma60.toFixed(2)}\n\n系统已自动为您切换至: ${regimeSelect.options[regimeSelect.selectedIndex].text}`);
+                    alert(`[大盘校准成功]\n最新指数: ${latestClose.toFixed(2)}\nMA60均线: ${ma60.toFixed(2)}\n系统切换至: ${regimeSelect.options[regimeSelect.selectedIndex].text}`);
                     switchRegime();
                 } catch(e) { alert("自动校准失败，请参考下方指南进行手动选择环境。"); }
                 btn.innerText = "🤖 自动校准水位";
             };
             script.onerror = function() {
-                alert("网络连接超时或被浏览器拦截。请看下方手动校准指南，肉眼确认后切挡！");
+                alert("网络连接超时或被浏览器拦截。请看下方手动校准指南！");
                 btn.innerText = "🤖 自动校准水位";
             };
             document.body.appendChild(script);
@@ -165,12 +172,10 @@
             const panel = document.getElementById('resultPanel');
 
             if (regime === 'bear') {
-                grid.style.opacity = '0.3';
-                grid.style.pointerEvents = 'none';
-                panel.innerHTML = "<span class='fail'>🛑 熊市熔断！当前大盘趋势极度恶劣，覆巢之下无完卵，禁止任何买入操作。</span>";
+                grid.style.opacity = '0.3'; grid.style.pointerEvents = 'none';
+                panel.innerHTML = "<span class='fail'>🛑 熊市熔断！大盘跌破生命线，系统强制切断交易权限。空仓保命！</span>";
             } else {
-                grid.style.opacity = '1';
-                grid.style.pointerEvents = 'auto';
+                grid.style.opacity = '1'; grid.style.pointerEvents = 'auto';
                 bulls.forEach(el => el.style.display = (regime === 'bull' ? 'block' : 'none'));
                 oscs.forEach(el => el.style.display = (regime === 'osc' ? 'block' : 'none'));
                 panel.innerHTML = "环境已切换，请录入猎物数据。";
@@ -188,9 +193,9 @@
                 const data = window['v_'+code].split('~');
                 document.getElementById('stockName').value = data[1];
                 document.getElementById('price').value = data[3];
-                document.getElementById('pe').value = data[39] || 0;
+                document.getElementById('pe').value = data[39] || 0; // data[39] 返回的就是 TTM 或静市盈率，非常严谨
                 document.getElementById('volToday').value = data[36];
-                document.getElementById('radarStatus').innerText = "✅ 数据锁定";
+                document.getElementById('radarStatus').innerText = "✅ 现价与市盈率(TTM)已锁定";
             };
             document.body.appendChild(script);
         }
@@ -203,7 +208,16 @@
             const capital = parseFloat(document.getElementById('capital').value);
             const pe = parseFloat(document.getElementById('pe').value);
             const rsi = parseFloat(document.getElementById('rsi').value);
+            const rsiMonthly = parseFloat(document.getElementById('rsiMonthly').value);
             const bias = parseFloat(document.getElementById('bias').value);
+            const profit = parseFloat(document.getElementById('profitRatio').value);
+            const cashFlow = document.getElementById('cashFlow').value;
+            
+            const volToday = parseFloat(document.getElementById('volToday').value);
+            let rawVol20 = parseFloat(document.getElementById('vol20Days').value);
+            let vol20Days = (rawVol20 > 0 && rawVol20 < 10000) ? rawVol20 * 10000 : rawVol20;
+            const volMultiplier = vol20Days > 0 ? (volToday / vol20Days) : 0;
+
             const stop = p - (1.5 * atr);
             const risk = p - stop;
             
@@ -211,32 +225,57 @@
             let fails = [];
             let log = "";
 
+            if (cashFlow === 'no') { isPass = false; fails.push("基本面死刑：现金流枯竭，缺乏造血能力！"); }
+            if (rsiMonthly > 70) { isPass = false; fails.push(`大周期死刑：月线 RSI 高达 ${rsiMonthly}，随时面临爆缸暴跌风险！`); }
+            if (profit < 30) { isPass = false; fails.push(`筹码死刑：获利盘仅 ${profit}%，上方全是套牢盘怨魂，抛压极大！`); }
+
             if (regime === 'bull') {
                 log = "<div class='mode-tag'>🔥 正在运行：牛市强势突破序列</div>\n";
-                if (pe > 250) { isPass = false; fails.push("估值过激 (>250)"); }
-                if (rsi < 50 || rsi > 75) { isPass = false; fails.push("RSI 动能不在主升区间"); }
-                const targetVal = document.getElementById('targetPrice').value || (p + 3*risk);
-                log += `🎯 战略止盈目标: ${parseFloat(targetVal).toFixed(2)}\n`;
+                const volTarget = parseFloat(document.getElementById('volTarget').value) || 1.5;
+                
+                if (pe < 0 || pe > 250) { isPass = false; fails.push(`估值死刑：即使牛市豁免，市盈率(TTM) ${pe} 倍也不可超越250倍极限！`); }
+                if (volMultiplier < volTarget) { isPass = false; fails.push(`量能死刑：倍量仅 ${volMultiplier.toFixed(2)}，未达进攻红线(${volTarget}倍)！绝对不能买无量假突破！`); }
+                if (bias < 0 || bias > 15) { isPass = false; fails.push(`动能死刑：BIAS (${bias}%) 偏离 0~15% 安全发车点！`); }
+                if (rsi < 50 || rsi > 75) { isPass = false; fails.push(`情绪死刑：日线 RSI (${rsi}) 动能不在主升区间！`); }
+                
+                const targetVal = document.getElementById('targetPrice').value.trim();
+                let finalTarget = 0;
+                if (targetVal === "") {
+                    finalTarget = p + (3 * risk);
+                    log += `   <span class="api-text">>> 🤖 [蓝天白云引擎] 启动：生成 3R 理论止盈价 [${finalTarget.toFixed(2)} 元]。实战死锁 MA20 防守！</span>\n`;
+                } else {
+                    finalTarget = parseFloat(targetVal);
+                    const rrFinal = (finalTarget - p) / risk;
+                    if (rrFinal < 2) { isPass = false; fails.push(`风控死刑：盈亏比仅 ${rrFinal.toFixed(2)} (<2)，拿命搏铜板！`); }
+                    log += `🎯 战略止盈目标: ${finalTarget.toFixed(2)}\n`;
+                }
+
             } else {
                 log = "<div class='mode-tag'>🌊 正在运行：震荡龙回头低吸序列</div>\n";
                 const ma20 = parseFloat(document.getElementById('ma20Price').value);
                 const low5 = parseFloat(document.getElementById('lowPast5').value);
-                if (low5 > ma20 * 1.02) { isPass = false; fails.push("过去5日未见回踩洗盘"); }
-                if (bias > 8 || rsi > 65) { isPass = false; fails.push("动能过热，拒绝追高"); }
-                const targetVal = p + 1.5*risk;
-                log += `🎯 现实止盈目标(1.5R): ${targetVal.toFixed(2)}\n`;
+                
+                if (pe < 0 || pe > 100) { isPass = false; fails.push(`估值死刑：震荡市要求严控风险，市盈率(TTM) ${pe} 倍超越了 100 倍护城河！`); }
+                if (low5 > ma20 * 1.02) { isPass = false; fails.push("形态死刑：过去5日未曾回踩均线洗盘，禁止高位接盘！"); }
+                if (bias > 8 || rsi > 65) { isPass = false; fails.push(`追高警报：BIAS(${bias})或日RSI(${rsi})过热，震荡市只准买底部起爆！`); }
+                if (volMultiplier < 1.2 || volMultiplier > 3.5) { isPass = false; fails.push(`量能死刑：倍量 ${volMultiplier.toFixed(2)}。要求温和放量(1.2~3.5)，拒绝死水和诱多天量！`); }
+
+                const finalTarget = p + 1.5 * risk;
+                log += `🎯 现实止盈目标(1.5R): ${finalTarget.toFixed(2)}\n`;
             }
 
             if (!isPass) {
-                panel.innerHTML = log + "<span class='fail'>🚫 审判失败：</span>\n" + fails.map(f => " ❌ " + f).join("\n");
+                panel.innerHTML = log + "<span class='fail'>🚫 统帅部终极审判：不予放行！</span>\n" + fails.map(f => " ❌ " + f).join("\n");
                 panel.style.borderLeftColor = "var(--accent-red)";
             } else {
                 const risk_pct = (regime === 'bull' ? 0.015 : 0.01);
                 const shares = Math.floor((capital * risk_pct / risk) / 100) * 100;
-                panel.innerHTML = log + `<span class='pass'>✅ 审判通过！准许开火。</span>\n\n🛡️ 绝对止损: ${stop.toFixed(2)}\n📦 建议仓位: ${shares} 股\n🚀 战术动作: ${regime==='bull'?'MA20追踪止盈':'1.5R分批止盈'}`;
+                panel.innerHTML = log + `<span class='pass'>✅ 审判通过！各指标完美闭环，准许按战略节点开火！</span>\n\n🛡️ 绝对物理止损: ${stop.toFixed(2)}\n📦 建议配仓: ${shares} 股 (动用 ${risk_pct*100}% 风控暴露)\n🚀 核心战令: ${regime==='bull'?'若无阻力，让利润奔跑，跌破MA20清仓！':'触及 1.5R 目标位立刻强制平仓 50% 落袋为安！'}`;
                 panel.style.borderLeftColor = "var(--accent-green)";
             }
         }
+        
+        switchRegime();
     </script>
 </body>
 </html>
