@@ -2,299 +2,240 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>双因子猎手 V9.7 | 蓝天白云雷达舱</title>
+    <title>双因子猎手 V11.3 | 终极抗干扰版</title>
     <style>
         :root {
             --bg-color: #0b0e14; --panel-bg: #151a22; --text-main: #e0e6ed;
             --text-muted: #6b7280; --accent-green: #00e676; --accent-red: #ff3d00;
             --border-color: #2a3241; --api-blue: #00b0ff; --warning-yellow: #ffd600;
         }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; }
-        .header { text-align: center; padding: 10px 0 20px 0; border-bottom: 2px solid var(--border-color); margin-bottom: 20px; }
-        .header h1 { margin: 0; color: var(--accent-green); font-weight: 300; letter-spacing: 2px; }
-        .header p { color: var(--text-muted); font-size: 14px; margin-top: 5px; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; }
+        .header { text-align: center; padding: 10px 0; border-bottom: 2px solid var(--border-color); margin-bottom: 20px; }
+        .header h1 { margin: 0; color: var(--accent-green); letter-spacing: 2px; }
         
-        .radar-panel { background: linear-gradient(135deg, #10151f 0%, #1a2333 100%); border: 1px solid var(--api-blue); border-radius: 8px; padding: 20px; margin: 0 auto 20px auto; max-width: 1400px; display: flex; align-items: center; gap: 15px; box-shadow: 0 0 15px rgba(0, 176, 255, 0.1); }
-        .radar-panel input { padding: 12px; font-size: 16px; font-weight: bold; background-color: #000; color: var(--api-blue); border: 1px solid var(--api-blue); border-radius: 4px; width: 200px; text-transform: uppercase; }
-        .radar-panel input:focus { outline: none; box-shadow: 0 0 8px var(--api-blue); }
-        .btn-radar { padding: 12px 25px; font-size: 16px; font-weight: bold; background-color: rgba(0, 176, 255, 0.1); color: var(--api-blue); border: 1px solid var(--api-blue); border-radius: 4px; cursor: pointer; transition: 0.3s; }
-        .btn-radar:hover { background-color: var(--api-blue); color: #000; }
-        .radar-status { color: var(--text-muted); font-size: 13px; margin-left: auto; }
+        .regime-container { background: linear-gradient(90deg, #2b1010 0%, #1a2333 50%, #102b1a 100%); padding: 15px; border-radius: 8px; border: 2px solid var(--warning-yellow); margin-bottom: 20px; box-shadow: 0 0 15px rgba(255, 214, 0, 0.2); }
+        .regime-selector { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 12px; }
+        .regime-selector label { font-size: 16px; font-weight: bold; color: var(--warning-yellow); }
+        .regime-selector select { padding: 10px; font-size: 15px; font-weight: bold; background: #000; color: #fff; border: 1px solid var(--warning-yellow); border-radius: 4px; cursor: pointer; outline: none; }
+        .btn-auto { background: var(--warning-yellow); color: #000; font-weight: bold; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        
+        .manual-guide { text-align: center; font-size: 13px; color: #8ab4f8; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 4px; width: fit-content; margin: 0 auto; border: 1px dashed #8ab4f8; }
 
-        .grid-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; max-width: 1400px; margin: 0 auto; }
-        .card { background-color: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; transition: all 0.3s ease; }
-        .card h2 { font-size: 16px; margin-top: 0; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); color: #8ab4f8; }
-        .form-group { margin-bottom: 15px; }
-        .form-group > label { display: block; font-size: 13px; color: #8ab4f8; margin-bottom: 8px; font-weight: bold; }
-        .sub-label { font-size: 11px; color: var(--text-muted); margin-bottom: 3px; display: block; }
+        .radar-panel { background: #1a2333; border: 1px solid var(--api-blue); border-radius: 8px; padding: 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
+        .radar-panel input { padding: 12px; font-size: 16px; background: #000; color: var(--api-blue); border: 1px solid var(--api-blue); border-radius: 4px; width: 180px; }
         
-        .form-group input, .form-group select { width: 100%; padding: 8px; box-sizing: border-box; background-color: #0b0e14; border: 1px solid var(--border-color); color: var(--text-main); border-radius: 4px; transition: border 0.3s; }
-        .form-group input:focus, .form-group select:focus { border-color: var(--accent-green); outline: none; }
-        .form-group input.auto-filled { border-color: var(--api-blue); background-color: rgba(0, 176, 255, 0.05); }
-        .form-group input.error-alert { border-color: var(--accent-red); background-color: rgba(255, 61, 0, 0.05); } 
+        .grid-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; transition: opacity 0.3s; }
+        .card { background-color: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; }
+        .card h2 { font-size: 15px; margin-top: 0; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); color: #8ab4f8; }
         
-        .btn-execute { width: 100%; padding: 15px; font-size: 18px; font-weight: bold; background-color: #2a3241; color: var(--text-main); border: 2px solid var(--border-color); border-radius: 4px; cursor: pointer; transition: 0.3s; margin-top: 20px; }
-        .btn-execute:hover { background-color: var(--accent-green); color: #000; border-color: var(--accent-green); }
-        .btn-execute:active { transform: scale(0.98); }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; color: #8ab4f8; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group select { width: 100%; padding: 8px; box-sizing: border-box; background-color: #0b0e14; border: 1px solid var(--border-color); color: var(--text-main); border-radius: 4px; }
         
-        #resultPanel { grid-column: span 3; background-color: #000; padding: 20px; border-left: 4px solid var(--border-color); font-family: monospace; white-space: pre-wrap; min-height: 150px; font-size: 15px; line-height: 1.6; transition: border-left-color 0.3s ease; }
-        .pass { color: var(--accent-green); } .fail { color: var(--accent-red); } .warning { color: var(--warning-yellow); } .api-text { color: var(--api-blue); font-weight: bold; } .title { color: #8ab4f8; font-weight: bold; }
+        .bull-only { border-left: 3px solid var(--accent-red); padding-left: 8px; }
+        .osc-only { border-left: 3px solid var(--warning-yellow); padding-left: 8px; }
+
+        .btn-execute { width: 100%; padding: 15px; font-size: 18px; font-weight: bold; background-color: #2a3241; color: var(--text-main); border: 2px solid var(--border-color); border-radius: 4px; cursor: pointer; margin-top: 20px; transition: 0.3s; }
+        .btn-execute:hover { background-color: var(--accent-green); color: #000; }
+        
+        #resultPanel { grid-column: span 3; background-color: #000; padding: 20px; border-left: 4px solid var(--border-color); font-family: monospace; white-space: pre-wrap; margin-top: 20px; line-height: 1.6; min-height: 150px; }
+        .pass { color: var(--accent-green); font-weight: bold; } 
+        .fail { color: var(--accent-red); font-weight: bold; } 
+        .mode-tag { background: #333; padding: 2px 8px; border-radius: 4px; color: var(--warning-yellow); margin-bottom: 10px; display: inline-block; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>双因子猎手 V9.7 蓝天白云雷达舱</h1>
-        <p>API 自动侦察 | 防呆换算 | 灵活倍数卡控 | 3R 自动巡航</p>
+        <h1>双因子猎手 V11.3 终极抗干扰版</h1>
+        <p>自动水位侦测 | 手动刻度辅助 | 策略全量解耦</p>
     </div>
 
-    <div class="radar-panel">
-        <label style="color:var(--api-blue); font-weight:bold;">📡 目标锁定 :</label>
-        <input type="text" id="apiCodeInput" placeholder="输入代码 (如 600864)" autocomplete="off">
-        <button class="btn-radar" onclick="fetchStockAPI()">⚡ 一键 API 自动侦察</button>
-        <span id="radarStatus" class="radar-status">系统就绪，等待统帅输入指令...</span>
-    </div>
-
-    <div class="grid-container">
-        
-        <div class="card">
-            <h2>🛡️ 1. 市场基本面 (调研防线)</h2>
-            <div class="form-group"><label>标的名称</label><input type="text" id="stockName" value="等待侦察..."></div>
-            <div class="form-group"><label>市盈率 (PE TTM) [要求: 0-50]</label>
-                <span class="sub-label" style="color:#ff3d00" id="peAlert"></span>
-                <input type="number" id="pe" value="0">
-            </div>
-            <div class="form-group"><label>经营现金流状态 (需人工确认)</label>
-                <select id="cashFlow"><option value="yes">充沛 (正向造血)</option><option value="no">枯竭 (负向预警)</option></select>
-            </div>
+    <div class="regime-container">
+        <div class="regime-selector">
+            <label>⚙️ 宏观大盘环境 :</label>
+            <select id="marketRegime" onchange="switchRegime()">
+                <option value="bull">🔥 牛市·强趋势 (启用突破战法)</option>
+                <option value="osc" selected>🌊 震荡·轮动市 (启用低吸战法)</option>
+                <option value="bear">❄️ 熊市·主跌浪 (强制熔断)</option>
+            </select>
+            <button class="btn-auto" id="autoBtn" onclick="autoDetectRegime()">🤖 自动校准水位</button>
         </div>
-        
-        <div class="card">
-            <h2>🔭 2. 技术面指标 (多周期测距)</h2>
-            <div class="form-group"><label>当前现价 (元)</label><input type="number" id="price" value="0"></div>
-            
-            <div class="form-group"><label>成交量测算 (单位：手)</label>
-                <div style="display:flex; gap:10px; margin-bottom: 8px;">
-                    <div style="flex:1;"><span class="sub-label">今日成交量 (API获取)</span><input type="number" id="volToday" value="0"></div>
-                    <div style="flex:1;"><span class="sub-label">20日均量 (若是万手直接输，如3.8)</span><input type="number" id="vol20Days" value="0"></div>
-                </div>
-                <div style="flex:1;">
-                    <span class="sub-label api-text">🎯 要求量能放大倍数 (默认 1.5 倍)</span>
-                    <input type="number" id="volTarget" value="1.5" step="0.1">
-                </div>
-            </div>
+        <div class="manual-guide">
+            💡 <b>手动校准基准 (上证指数)：</b> 
+            <span style="color:var(--accent-red); margin: 0 5px;">🔥 牛市：现价 > MA60 × 1.02</span> | 
+            <span style="color:var(--warning-yellow); margin: 0 5px;">🌊 震荡：在 MA60 附近 ±2% 内</span> | 
+            <span style="color:var(--accent-green); margin: 0 5px;">❄️ 熊市：现价 < MA60 × 0.98</span>
+        </div>
+    </div>
 
-            <div class="form-group"><label>日线 BIAS(60) 乖离率 [%] (需人工)</label><input type="number" id="bias" value="0"></div>
-            
-            <div class="form-group"><label>RSI 动能指标 (需人工)</label>
-                <div style="display:flex; gap:10px;">
-                    <div style="flex:1;"><span class="sub-label">日线 RSI [50-75]</span><input type="number" id="rsiDaily" value="0"></div>
-                    <div style="flex:1;"><span class="sub-label">月线 RSI [<=70]</span><input type="number" id="rsiMonthly" value="0"></div>
-                </div>
+    <div class="radar-panel" id="radarPanel">
+        <label style="color:var(--api-blue); font-weight:bold;">🎯 代码锁定 :</label>
+        <input type="text" id="apiCodeInput" placeholder="如 000001">
+        <button style="padding:10px 20px; cursor:pointer;" onclick="fetchStockAPI()">⚡ 抓取个股</button>
+        <span id="radarStatus" style="font-size: 12px; color: var(--text-muted); margin-left:auto;">等待指令...</span>
+    </div>
+
+    <div class="grid-container" id="mainGrid">
+        <div class="card">
+            <h2>🛡️ 1. 核心战术输入</h2>
+            <div class="form-group osc-only">
+                <label>20日均线价格 (元)</label>
+                <input type="number" id="ma20Price" step="0.01">
             </div>
+            <div class="form-group osc-only">
+                <label>过去5日最低价 (元)</label>
+                <input type="number" id="lowPast5" step="0.01">
+            </div>
+            <div class="form-group bull-only" style="display:none;">
+                <label>预期止盈 (留空则自动3R)</label>
+                <input type="number" id="targetPrice">
+            </div>
+            <div class="form-group"><label>获利筹码比例 [%]</label><input type="number" id="profitRatio" value="100"></div>
         </div>
 
         <div class="card">
-            <h2>⚖️ 3. 风险管理 (盈亏精算)</h2>
-            <div class="form-group"><label>账户总资金 (元)</label><input type="number" id="capital" value="100000"></div>
-            <div class="form-group"><label>今日 ATR(14) 数值 (需人工)</label><input type="number" id="atr" value="0"></div>
-            
-            <div class="form-group">
-                <label>预期止盈点位 (有阻力填数字，突破新高无阻力请<span class="api-text">【清空留白】</span>)</label>
-                <input type="number" id="targetPrice" placeholder="留空则自动激活 3R 巡航" value="">
+            <h2>🔭 2. 量价动能测距</h2>
+            <div class="form-group"><label>标的名字</label><input type="text" id="stockName" readonly></div>
+            <div class="form-group"><label>当前现价</label><input type="number" id="price" step="0.01"></div>
+            <div style="display:flex; gap:5px;">
+                <div class="form-group"><label>今日量</label><input type="number" id="volToday"></div>
+                <div class="form-group"><label>20日均量</label><input type="number" id="vol20Days"></div>
             </div>
-            
-            <div class="form-group">
-                <label>筹码获利比例 [%] (常规填软件数值，突破新高请<span class="api-text">【填入 100】</span>)</label>
-                <input type="number" id="profitRatio" placeholder="若突破新高无脑填100" value="0">
+            <div style="display:flex; gap:5px;">
+                <div class="form-group"><label>BIAS(60)</label><input type="number" id="bias"></div>
+                <div class="form-group"><label>RSI(14)</label><input type="number" id="rsi"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>⚖️ 3. 资金与风控</h2>
+            <div class="form-group"><label>总资金</label><input type="number" id="capital" value="100000"></div>
+            <div class="form-group"><label>动态 PE</label><input type="number" id="pe"></div>
+            <div class="form-group"><label>今日 ATR</label><input type="number" id="atr" step="0.01"></div>
+            <div class="form-group"><label>现金流为正？</label>
+                <select id="cashFlow"><option value="yes">是</option><option value="no">否</option></select>
             </div>
         </div>
 
         <div style="grid-column: span 3;">
-            <button class="btn-execute" onclick="executeSystem()">⚡ 数据核对完毕，执行核心审判 (EXECUTE)</button>
+            <button class="btn-execute" id="execBtn" onclick="executeSystem()">⚡ 执行审判</button>
         </div>
         
-        <div id="resultPanel">等待统帅录入情报，系统静默中...</div>
+        <div id="resultPanel">等待统帅录入...</div>
     </div>
 
     <script>
-        function fetchStockAPI() {
-            let code = document.getElementById('apiCodeInput').value.trim().toLowerCase();
-            const statusBox = document.getElementById('radarStatus');
-            const peInput = document.getElementById('pe');
-            const peAlert = document.getElementById('peAlert');
+        function autoDetectRegime() {
+            const btn = document.getElementById('autoBtn');
+            btn.innerText = "📡 数据侦察中...";
             
-            if(!code || code.length < 6) { statusBox.innerHTML = "<span class='fail'>❌ 代码无效，请输入6位代码</span>"; return; }
-
-            if (/^\d{6}$/.test(code)) {
-                if (code.startsWith('6')) code = 'sh' + code;
-                else if (code.startsWith('0') || code.startsWith('3')) code = 'sz' + code;
-                else if (code.startsWith('8') || code.startsWith('4') || code.startsWith('8')) code = 'bj' + code;
-            }
-
-            statusBox.innerHTML = "<span style='color:var(--api-blue);'>📡 正在跨域连接极速服务器...</span>";
-            peInput.classList.remove('error-alert', 'auto-filled');
-            peAlert.innerText = "";
-
-            let script = document.createElement('script');
-            script.src = 'https://qt.gtimg.cn/q=' + code;
-            
+            const script = document.createElement('script');
+            script.src = 'https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?_var=kline_sh&param=sh000001,day,,,60';
             script.onload = function() {
-                let varName = 'v_' + code;
-                if (window[varName]) {
-                    let data = window[varName].split('~');
-                    if (data.length > 10) {
-                        let elName = document.getElementById('stockName');
-                        let elPrice = document.getElementById('price');
-                        let elVol = document.getElementById('volToday');
-
-                        elName.value = data[1];
-                        elPrice.value = data[3];
-                        elVol.value = data[36];
-                        [elName, elPrice, elVol].forEach(el => el.classList.add('auto-filled'));
-
-                        let peValue = data[39];
-                        if (peValue !== '' && parseFloat(peValue) > 0) {
-                            peInput.value = parseFloat(peValue);
-                            peInput.classList.add('auto-filled');
-                        } else {
-                            peInput.value = ""; 
-                            peInput.classList.add('error-alert');
-                            peAlert.innerText = "⚠️ API 无法获取 TTM，请人工填入！";
-                        }
-
-                        statusBox.innerHTML = "<span class='pass'>✅ 侦察成功！基础数据已填，请留意红色警示框。</span>";
-                    } else {
-                        statusBox.innerHTML = "<span class='fail'>❌ 查无此股或停牌。</span>";
-                    }
-                }
+                try {
+                    const days = window.kline_sh.data.sh000001.day;
+                    const latestClose = parseFloat(days[days.length-1][2]);
+                    let sum = 0;
+                    days.forEach(d => sum += parseFloat(d[2]));
+                    const ma60 = sum / days.length;
+                    
+                    const regimeSelect = document.getElementById('marketRegime');
+                    if (latestClose > ma60 * 1.02) regimeSelect.value = 'bull';
+                    else if (latestClose < ma60 * 0.98) regimeSelect.value = 'bear';
+                    else regimeSelect.value = 'osc';
+                    
+                    alert(`[大盘校准成功]\n最新上证指数: ${latestClose.toFixed(2)}\n60日均线(MA60): ${ma60.toFixed(2)}\n\n系统已自动为您切换至: ${regimeSelect.options[regimeSelect.selectedIndex].text}`);
+                    switchRegime();
+                } catch(e) { alert("自动校准失败，请参考下方指南进行手动选择环境。"); }
+                btn.innerText = "🤖 自动校准水位";
             };
-            script.onerror = function() { statusBox.innerHTML = "<span class='fail'>❌ 网络连接失败。</span>"; };
+            script.onerror = function() {
+                alert("网络连接超时或被浏览器拦截。请看下方手动校准指南，肉眼确认后切挡！");
+                btn.innerText = "🤖 自动校准水位";
+            };
+            document.body.appendChild(script);
+        }
+
+        function switchRegime() {
+            const regime = document.getElementById('marketRegime').value;
+            const bulls = document.querySelectorAll('.bull-only');
+            const oscs = document.querySelectorAll('.osc-only');
+            const grid = document.getElementById('mainGrid');
+            const panel = document.getElementById('resultPanel');
+
+            if (regime === 'bear') {
+                grid.style.opacity = '0.3';
+                grid.style.pointerEvents = 'none';
+                panel.innerHTML = "<span class='fail'>🛑 熊市熔断！当前大盘趋势极度恶劣，覆巢之下无完卵，禁止任何买入操作。</span>";
+            } else {
+                grid.style.opacity = '1';
+                grid.style.pointerEvents = 'auto';
+                bulls.forEach(el => el.style.display = (regime === 'bull' ? 'block' : 'none'));
+                oscs.forEach(el => el.style.display = (regime === 'osc' ? 'block' : 'none'));
+                panel.innerHTML = "环境已切换，请录入猎物数据。";
+            }
+        }
+
+        function fetchStockAPI() {
+            let code = document.getElementById('apiCodeInput').value.trim();
+            if(!code) return;
+            if(/^\d{6}$/.test(code)) code = (code.startsWith('6') ? 'sh' : 'sz') + code;
+            
+            const script = document.createElement('script');
+            script.src = `https://qt.gtimg.cn/q=${code}`;
+            script.onload = function() {
+                const data = window['v_'+code].split('~');
+                document.getElementById('stockName').value = data[1];
+                document.getElementById('price').value = data[3];
+                document.getElementById('pe').value = data[39] || 0;
+                document.getElementById('volToday').value = data[36];
+                document.getElementById('radarStatus').innerText = "✅ 数据锁定";
+            };
             document.body.appendChild(script);
         }
 
         function executeSystem() {
+            const regime = document.getElementById('marketRegime').value;
             const panel = document.getElementById('resultPanel');
-            panel.style.borderLeftColor = "var(--border-color)";
-            panel.innerHTML = "<span class='warning'>⏳ 正在启动机器深度核算...</span>\n";
+            const p = parseFloat(document.getElementById('price').value);
+            const atr = parseFloat(document.getElementById('atr').value);
+            const capital = parseFloat(document.getElementById('capital').value);
+            const pe = parseFloat(document.getElementById('pe').value);
+            const rsi = parseFloat(document.getElementById('rsi').value);
+            const bias = parseFloat(document.getElementById('bias').value);
+            const stop = p - (1.5 * atr);
+            const risk = p - stop;
+            
+            let isPass = true;
+            let fails = [];
+            let log = "";
 
-            setTimeout(() => {
-                const stockName = document.getElementById('stockName').value;
-                const pe = parseFloat(document.getElementById('pe').value);
-                const cashFlow = document.getElementById('cashFlow').value;
-                const price = parseFloat(document.getElementById('price').value);
-                const volToday = parseFloat(document.getElementById('volToday').value);
-                
-                let rawVol20 = parseFloat(document.getElementById('vol20Days').value);
-                let vol20Days = rawVol20;
-                let volConvertLog = "";
-                if (rawVol20 > 0 && rawVol20 < 10000) {
-                    vol20Days = rawVol20 * 10000;
-                    volConvertLog = `\n   <span class="api-text">🤖 [防呆装甲] 介入：均量输入为 ${rawVol20}，已自动换算为 ${vol20Days} 手。</span>`;
-                }
+            if (regime === 'bull') {
+                log = "<div class='mode-tag'>🔥 正在运行：牛市强势突破序列</div>\n";
+                if (pe > 250) { isPass = false; fails.push("估值过激 (>250)"); }
+                if (rsi < 50 || rsi > 75) { isPass = false; fails.push("RSI 动能不在主升区间"); }
+                const targetVal = document.getElementById('targetPrice').value || (p + 3*risk);
+                log += `🎯 战略止盈目标: ${parseFloat(targetVal).toFixed(2)}\n`;
+            } else {
+                log = "<div class='mode-tag'>🌊 正在运行：震荡龙回头低吸序列</div>\n";
+                const ma20 = parseFloat(document.getElementById('ma20Price').value);
+                const low5 = parseFloat(document.getElementById('lowPast5').value);
+                if (low5 > ma20 * 1.02) { isPass = false; fails.push("过去5日未见回踩洗盘"); }
+                if (bias > 8 || rsi > 65) { isPass = false; fails.push("动能过热，拒绝追高"); }
+                const targetVal = p + 1.5*risk;
+                log += `🎯 现实止盈目标(1.5R): ${targetVal.toFixed(2)}\n`;
+            }
 
-                const volTarget = parseFloat(document.getElementById('volTarget').value) || 1.5;
-                const volMultiplier = vol20Days > 0 ? (volToday / vol20Days) : 0;
-
-                const bias = parseFloat(document.getElementById('bias').value);
-                const rsiDaily = parseFloat(document.getElementById('rsiDaily').value);
-                const rsiMonthly = parseFloat(document.getElementById('rsiMonthly').value);
-                const capital = parseFloat(document.getElementById('capital').value);
-                const atr = parseFloat(document.getElementById('atr').value);
-                const profitRatio = parseFloat(document.getElementById('profitRatio').value);
-                
-                const targetPriceInput = document.getElementById('targetPrice').value.trim();
-
-                let isPass = true;
-                let fails = [];
-
-                if (isNaN(pe) || pe < 0 || pe > 50) { isPass = false; fails.push(`基本面死刑：PE(${pe})无效或不在0~50范围！`); }
-                if (cashFlow === 'no') { isPass = false; fails.push("基本面死刑：现金流枯竭，缺乏造血能力！"); }
-                
-                if (vol20Days <= 0) { isPass = false; fails.push("参数错误：请正确输入20日均量！"); } 
-                else if (volMultiplier < volTarget) { isPass = false; fails.push(`技术面死刑：量能仅 ${volMultiplier.toFixed(2)} 倍，未达你设定的 ${volTarget} 倍红线！`); }
-                
-                if (bias < 0 || bias > 15) { isPass = false; fails.push(`技术面死刑：BIAS 为 ${bias}%，偏离 0~15% 安全点！`); }
-                if (rsiDaily < 50 || rsiDaily > 75) { isPass = false; fails.push(`技术面死刑：日线 RSI 为 ${rsiDaily}，动能不佳！`); }
-                if (rsiMonthly > 70) { isPass = false; fails.push(`技术面死刑：月线 RSI 高达 ${rsiMonthly}，面临回调风险！`); }
-                
-                // 修复防呆逻辑：如果用户连 0 都不输，或者留空，将触发警告
-                if (isNaN(profitRatio) || profitRatio < 30) { isPass = false; fails.push(`技术面死刑：获利比例仅 ${isNaN(profitRatio)?'0':profitRatio}%，抛压极大！(突破新高必须填100)`); }
-
-                const stopPrice = price - (1.5 * atr);
-                const riskPerShare = price - stopPrice;
-                let targetPrice;
-                let isAuto3R = false;
-
-                if (targetPriceInput === "") {
-                    targetPrice = price + (riskPerShare * 3);
-                    isAuto3R = true;
-                } else {
-                    targetPrice = parseFloat(targetPriceInput);
-                }
-
-                let rrFinal = 0;
-                if (targetPrice <= price) {
-                    isPass = false; fails.push("风控死刑：预期止盈价必须高于现价！");
-                } else {
-                    rrFinal = (targetPrice - price) / riskPerShare;
-                    if (rrFinal < 2) { isPass = false; fails.push(`风控死刑：盈亏比仅为 ${rrFinal.toFixed(2)} (<2)！`); }
-                }
-
-                if (!isPass) {
-                    panel.style.borderLeftColor = "var(--accent-red)";
-                    let out = `<span class="fail">🚫 统帅指令：【多周期排雷失败，一票否决，禁止开火！】</span>\n\n`;
-                    fails.forEach(f => out += ` ❌ ${f}\n`);
-                    out += volConvertLog; 
-                    out += `\n<span class="warning">💡 【量能参数核对】：量能放大 ${volMultiplier.toFixed(2)} 倍 (目标 $\ge$ ${volTarget} 倍)。</span>\n`;
-                    out += `<span class="title">【准则四：心态控制】</span>\n<span class="warning">机器已切断你的非理性贪婪，立刻放弃该标的！</span>`;
-                    panel.innerHTML = out;
-                    return;
-                }
-
-                const maxRiskAmount = capital * 0.015;
-                const riskPerLot = riskPerShare * 100;
-                const maxShares = Math.floor((maxRiskAmount / riskPerShare) / 100) * 100;
-                const firstStrike = Math.floor((maxShares * 0.5) / 100) * 100;
-
-                if (maxShares === 0) {
-                    panel.style.borderLeftColor = "var(--accent-red)";
-                    panel.innerHTML = `<span class="fail">🚨 【统帅最高级别风控警告：资金超载！】</span>\n买1手的风险(${riskPerLot.toFixed(2)}元)已击穿总资金1.5%的护甲(${maxRiskAmount.toFixed(2)}元)！波动过大，严禁开火！`;
-                    return;
-                }
-
+            if (!isPass) {
+                panel.innerHTML = log + "<span class='fail'>🚫 审判失败：</span>\n" + fails.map(f => " ❌ " + f).join("\n");
+                panel.style.borderLeftColor = "var(--accent-red)";
+            } else {
+                const risk_pct = (regime === 'bull' ? 0.015 : 0.01);
+                const shares = Math.floor((capital * risk_pct / risk) / 100) * 100;
+                panel.innerHTML = log + `<span class='pass'>✅ 审判通过！准许开火。</span>\n\n🛡️ 绝对止损: ${stop.toFixed(2)}\n📦 建议仓位: ${shares} 股\n🚀 战术动作: ${regime==='bull'?'MA20追踪止盈':'1.5R分批止盈'}`;
                 panel.style.borderLeftColor = "var(--accent-green)";
-                let out = `<span class="pass">✅ AI 审查全线亮绿灯！准许按既定策略开火！</span>\n`;
-                out += `==========================================================\n`;
-                out += ` <span class="title">⚔️ 【行动纲领指令执行】 ⚔️</span> \n`;
-                out += `🎯 猎物代号: ${stockName}\n`;
-                out += `<span class="fail">🔴 绝对止损点位: ${stopPrice.toFixed(2)} 元 (买入瞬间必须挂载条件单)</span>\n`;
-                
-                if (isAuto3R) {
-                    out += `<span class="pass">📈 核心数据: 盈亏比 ${rrFinal.toFixed(2)} | 量能 ${volMultiplier.toFixed(2)} 倍</span>\n`;
-                    out += `   <span class="api-text">>> 🤖 [蓝天白云引擎] 启动：系统已生成 3R 理论止盈价 [${targetPrice.toFixed(2)} 元] 放行开火权限！实战请挂 MA20 移动止损！</span>\n`;
-                } else {
-                    out += `<span class="pass">📈 核心数据: 盈亏比 ${rrFinal.toFixed(2)} | 量能 ${volMultiplier.toFixed(2)} 倍 (预设止盈: ${targetPrice.toFixed(2)})</span>\n`;
-                }
-
-                out += `🛡️ 仓位配置: 极限总仓位 ${maxShares} 股 (本金单次风险<1.5%)\n`;
-                out += volConvertLog; 
-                out += `\n\n<span class="warning">🚀 【战术进场动作】：</span>\n`;
-                out += `   >> 准许在 14:50 进场，首发 50% 底仓：【 ${firstStrike === 0 ? "按最低1手建仓，绝不超载" : firstStrike + " 股"} 】！\n\n`;
-                
-                out += `<span class="title">📝 【准则五：动态复盘档案】(请一键复制归档)：</span>\n`;
-                out += `日期：${new Date().toLocaleDateString()} | 标的：${stockName} | 首发 ${firstStrike === 0 ? 100 : firstStrike} 股\n`;
-                out += `市场分析：基本面PE ${pe} 且现金流达标。\n`;
-                out += `技术研判：量能 ${volMultiplier.toFixed(2)} 倍。BIAS ${bias}%，RSI健康(${rsiDaily})。获利比例 ${profitRatio}%。\n`;
-                
-                if (isAuto3R) {
-                    out += `风控纪律：绝对止损 ${stopPrice.toFixed(2)}。该标的突破无阻力，启用 3R 虚拟止盈放行，实盘采用 MA20 动态追踪止盈。\n`;
-                } else {
-                    out += `风控纪律：止损 ${stopPrice.toFixed(2)}，预期止盈 ${targetPrice.toFixed(2)}，盈亏比达 ${rrFinal.toFixed(2)}。\n`;
-                }
-                
-                panel.innerHTML = out;
-            }, 300); 
+            }
         }
     </script>
 </body>
