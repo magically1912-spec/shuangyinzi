@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>双因子猎手 V12.1 | 终极融合版</title>
+    <title>双因子猎手 V12.2 | 量纲自适应版</title>
     <style>
         :root {
             --bg-color: #0b0e14; --panel-bg: #151a22; --text-main: #e0e6ed;
@@ -48,8 +48,8 @@
 <body>
 
     <div class="header">
-        <h1>双因子猎手 V12.1 终极融合版</h1>
-        <p>量能一票否决 | 严控 TTM 估值 | 状态机自适应切换</p>
+        <h1>双因子猎手 V12.2 量纲自适应版</h1>
+        <p>量能无脑直填 | 自动测向对数推演 | 状态机自适应</p>
     </div>
 
     <div class="regime-container">
@@ -104,8 +104,8 @@
             <div class="form-group"><label>标的名字</label><input type="text" id="stockName" readonly></div>
             <div class="form-group"><label>当前现价</label><input type="number" id="price" step="0.01"></div>
             <div style="display:flex; gap:5px;">
-                <div class="form-group"><label>今日量</label><input type="number" id="volToday"></div>
-                <div class="form-group"><label>20日均量</label><input type="number" id="vol20Days"></div>
+                <div class="form-group"><label>今日量(API抓取)</label><input type="number" id="volToday"></div>
+                <div class="form-group"><label style="color:#00e676;">20日均量(无脑直填软件显示)</label><input type="number" id="vol20Days"></div>
             </div>
             <div style="display:flex; gap:5px;">
                 <div class="form-group"><label>BIAS(60)</label><input type="number" id="bias"></div>
@@ -193,9 +193,9 @@
                 const data = window['v_'+code].split('~');
                 document.getElementById('stockName').value = data[1];
                 document.getElementById('price').value = data[3];
-                document.getElementById('pe').value = data[39] || 0; // data[39] 返回的就是 TTM 或静市盈率，非常严谨
+                document.getElementById('pe').value = data[39] || 0; 
                 document.getElementById('volToday').value = data[36];
-                document.getElementById('radarStatus').innerText = "✅ 现价与市盈率(TTM)已锁定";
+                document.getElementById('radarStatus').innerText = "✅ 数据锁定";
             };
             document.body.appendChild(script);
         }
@@ -214,9 +214,27 @@
             const cashFlow = document.getElementById('cashFlow').value;
             
             const volToday = parseFloat(document.getElementById('volToday').value);
-            let rawVol20 = parseFloat(document.getElementById('vol20Days').value);
-            let vol20Days = (rawVol20 > 0 && rawVol20 < 10000) ? rawVol20 * 10000 : rawVol20;
-            const volMultiplier = vol20Days > 0 ? (volToday / vol20Days) : 0;
+            const rawVol20 = parseFloat(document.getElementById('vol20Days').value);
+            
+            // ==============================================================
+            // 🤖 V12.2 核心科技：对数级自适应单位探测引擎
+            // ==============================================================
+            let volMultiplier = 0;
+            let autoUnit = "未知";
+            if (rawVol20 > 0) {
+                // 列出三种可能的用户输入单位带来的真实倍数
+                let ratios = [
+                    { val: volToday / rawVol20, name: "手" },
+                    { val: (volToday / 10000) / rawVol20, name: "万手" },
+                    { val: (volToday / 100000000) / rawVol20, name: "亿手" }
+                ];
+                // 使用对数距离寻找最接近 1.0 的倍数，精准判定用户使用的单位数量级
+                let bestRatio = ratios.reduce((prev, curr) => 
+                    Math.abs(Math.log(curr.val)) < Math.abs(Math.log(prev.val)) ? curr : prev
+                );
+                volMultiplier = bestRatio.val;
+                autoUnit = bestRatio.name;
+            }
 
             const stop = p - (1.5 * atr);
             const risk = p - stop;
@@ -231,10 +249,12 @@
 
             if (regime === 'bull') {
                 log = "<div class='mode-tag'>🔥 正在运行：牛市强势突破序列</div>\n";
-                const volTarget = parseFloat(document.getElementById('volTarget').value) || 1.5;
+                // ⚠️ 打印自适应单位结果
+                log += `<span style="color:#00e676">💡 量能自适应校准: 识别到指挥官输入单位为【${autoUnit}】，计算真实倍量为 ${volMultiplier.toFixed(2)} 倍</span>\n`;
                 
-                if (pe < 0 || pe > 250) { isPass = false; fails.push(`估值死刑：即使牛市豁免，市盈率(TTM) ${pe} 倍也不可超越250倍极限！`); }
-                if (volMultiplier < volTarget) { isPass = false; fails.push(`量能死刑：倍量仅 ${volMultiplier.toFixed(2)}，未达进攻红线(${volTarget}倍)！绝对不能买无量假突破！`); }
+                const volTarget = parseFloat(document.getElementById('volTarget').value) || 1.5;
+                if (pe < 0 || pe > 250) { isPass = false; fails.push(`估值死刑：市盈率(TTM) ${pe} 倍不可超越250倍极限！`); }
+                if (volMultiplier < volTarget) { isPass = false; fails.push(`量能死刑：倍量仅 ${volMultiplier.toFixed(2)}，未达进攻红线(${volTarget}倍)！`); }
                 if (bias < 0 || bias > 15) { isPass = false; fails.push(`动能死刑：BIAS (${bias}%) 偏离 0~15% 安全发车点！`); }
                 if (rsi < 50 || rsi > 75) { isPass = false; fails.push(`情绪死刑：日线 RSI (${rsi}) 动能不在主升区间！`); }
                 
@@ -252,10 +272,13 @@
 
             } else {
                 log = "<div class='mode-tag'>🌊 正在运行：震荡龙回头低吸序列</div>\n";
+                // ⚠️ 打印自适应单位结果
+                log += `<span style="color:#00e676">💡 量能自适应校准: 识别到指挥官输入单位为【${autoUnit}】，计算真实倍量为 ${volMultiplier.toFixed(2)} 倍</span>\n`;
+
                 const ma20 = parseFloat(document.getElementById('ma20Price').value);
                 const low5 = parseFloat(document.getElementById('lowPast5').value);
                 
-                if (pe < 0 || pe > 100) { isPass = false; fails.push(`估值死刑：震荡市要求严控风险，市盈率(TTM) ${pe} 倍超越了 100 倍护城河！`); }
+                if (pe < 0 || pe > 100) { isPass = false; fails.push(`估值死刑：市盈率(TTM) ${pe} 倍超越了 100 倍护城河！`); }
                 if (low5 > ma20 * 1.02) { isPass = false; fails.push("形态死刑：过去5日未曾回踩均线洗盘，禁止高位接盘！"); }
                 if (bias > 8 || rsi > 65) { isPass = false; fails.push(`追高警报：BIAS(${bias})或日RSI(${rsi})过热，震荡市只准买底部起爆！`); }
                 if (volMultiplier < 1.2 || volMultiplier > 3.5) { isPass = false; fails.push(`量能死刑：倍量 ${volMultiplier.toFixed(2)}。要求温和放量(1.2~3.5)，拒绝死水和诱多天量！`); }
