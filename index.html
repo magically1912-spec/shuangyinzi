@@ -2,495 +2,268 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>双因子猎手 V13.10 | 全息战术 UI 版</title>
+    <title>双因子猎手 V19.2 魔改版 | 穹顶微观火控</title>
     <style>
         :root {
-            --bg-color: #080b10; --panel-bg: #12161d; --text-main: #e0e6ed;
+            --bg-color: #0b0e14; --panel-bg: #131820; --text-main: #e0e6ed;
             --text-muted: #6b7280; --accent-green: #00e676; --accent-red: #ff3d00;
-            --border-color: #232a36; --api-blue: #00b0ff; --warning-yellow: #ffd600;
-            --knife-color: #ff4081;
+            --border-color: #2a3241; --api-blue: #00b0ff; --warning-yellow: #ffd600;
         }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center;}
+        .container { width: 100%; max-width: 900px; }
         
-        .header { text-align: center; padding: 10px 0; border-bottom: 2px solid var(--border-color); margin-bottom: 20px; }
-        .header h1 { margin: 0; color: var(--accent-green); letter-spacing: 2px; text-shadow: 0 0 15px rgba(0,230,118,0.4); }
-        .header p { color: var(--text-muted); font-size: 14px; margin-top: 8px; letter-spacing: 1px; }
+        .hud-panel { background: rgba(19, 24, 32, 0.8); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 0 20px rgba(0, 176, 255, 0.05); }
+        .hud-header { font-size: 14px; font-weight: bold; color: var(--api-blue); margin-bottom: 15px; border-bottom: 1px dashed var(--border-color); padding-bottom: 8px; letter-spacing: 1px;}
         
-        .regime-container { background: linear-gradient(90deg, #160e0e 0%, #151a22 50%, #101511 100%); padding: 15px 25px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.6); }
-        .regime-selector { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 12px; }
-        .regime-selector label { font-size: 16px; font-weight: bold; color: var(--warning-yellow); text-shadow: 0 0 8px rgba(255,214,0,0.3); }
-        .regime-selector select { padding: 10px 15px; font-size: 15px; font-weight: bold; background: #000; color: #fff; border: 1px solid var(--warning-yellow); border-radius: 4px; cursor: pointer; outline: none; }
-        .btn-auto { background: var(--warning-yellow); color: #000; font-weight: bold; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; transition: 0.3s;}
-        .btn-auto:hover { background: #fff; box-shadow: 0 0 15px var(--warning-yellow); }
-        
-        .radar-panel { background: #151a22; border: 1px solid var(--api-blue); border-radius: 8px; padding: 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 0 15px rgba(0,176,255,0.15); }
-        .radar-panel input { padding: 12px; font-size: 16px; font-weight: bold; background: #000; color: var(--api-blue); border: 1px solid var(--api-blue); border-radius: 4px; width: 180px; letter-spacing: 1px; box-shadow: inset 0 0 8px rgba(0,176,255,0.2); }
-        .radar-panel button { padding: 12px 25px; cursor: pointer; background: rgba(0,176,255,0.1); color: var(--api-blue); border: 1px solid var(--api-blue); font-weight: bold; border-radius: 4px; transition: 0.3s; }
-        .radar-panel button:hover { background: var(--api-blue); color: #000; box-shadow: 0 0 15px rgba(0,176,255,0.6); }
-        .radar-status { font-size: 14px; color: var(--text-muted); margin-left: auto; font-weight: bold; }
-
-        .grid-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px; transition: opacity 0.3s; }
-        .card { background-color: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
-        .card h2 { font-size: 15px; margin-top: 0; padding-bottom: 10px; border-bottom: 1px solid rgba(138,180,248,0.2); color: #8ab4f8; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         
         .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-size: 12px; color: #8ab4f8; margin-bottom: 5px; font-weight: bold; }
-        .form-group input, .form-group select { width: 100%; padding: 10px; box-sizing: border-box; background-color: #080b10; border: 1px solid var(--border-color); color: #fff; border-radius: 4px; outline: none; transition: 0.3s; }
-        .form-group input::placeholder { color: #3b4351; }
-        .form-group input:focus { border-color: var(--api-blue); box-shadow: 0 0 8px rgba(0,176,255,0.4); }
+        .form-group label { display: block; font-size: 12px; color: #8ab4f8; margin-bottom: 4px; font-weight: bold; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; box-sizing: border-box; background-color: #000; border: 1px solid #333; color: var(--text-main); border-radius: 4px; font-size: 14px; font-weight:bold; transition: 0.3s;}
+        .form-group input:focus, .form-group select:focus { border-color: var(--api-blue); box-shadow: 0 0 8px rgba(0, 176, 255, 0.3); outline: none; }
+
+        .radar-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 20px; background: #000; padding: 10px; border-radius: 6px; border: 1px solid #333;}
+        .btn-scan { padding: 10px 20px; background: var(--api-blue); color: #000; font-weight: bold; border: none; border-radius: 4px; cursor: pointer; }
         
-        /* 彻底干掉丑陋的边框，只保留逻辑上的包裹 */
-        .bull-only { display: none; margin: 0; padding: 0; }
-        .osc-only { display: block; margin: 0; padding: 0; }
+        .readout-box { background: rgba(0,0,0,0.5); border: 1px solid #333; border-radius: 4px; padding: 10px; text-align: center; display: flex; flex-direction: column; justify-content: center; height: 50px;}
+        .readout-box span { font-size: 11px; color: #6b7280; margin-bottom: 4px;}
+        .readout-box strong { font-size: 22px; color: #fff; font-family: monospace;}
 
-        .btn-execute { width: 100%; padding: 18px; font-size: 20px; font-weight: bold; background-color: #1a222d; color: var(--text-main); border: 2px solid var(--border-color); border-radius: 6px; cursor: pointer; transition: 0.3s; letter-spacing: 2px; text-transform: uppercase; }
-        .btn-execute:hover:not(:disabled) { background-color: var(--accent-green); color: #000; box-shadow: 0 0 25px rgba(0,230,118,0.5); border-color: var(--accent-green); }
-        .btn-execute:disabled { cursor: not-allowed; opacity: 0.8; } 
-
-        #logPanel { background-color: #000; padding: 20px; border-radius: 8px; border-left: 5px solid var(--border-color); font-family: monospace; white-space: pre-wrap; line-height: 1.6; margin-bottom: 20px; display: none; font-size: 14px; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
-        .log-pass { border-left-color: var(--accent-green) !important; color: #fff; }
-        .log-fail { border-left-color: var(--accent-red) !important; color: #fff; }
-
-        #actionPlan { display: none; margin-top: 20px; animation: HUD_fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
-        @keyframes HUD_fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* ================= 战术卡片 UI 核心重构 ================= */
-        .action-card { 
-            border-radius: 12px; padding: 30px; position: relative; overflow: hidden;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.9);
-        }
-        .action-card h2 { 
-            margin-top: 0; font-size: 26px; border-bottom: 1px solid rgba(255,255,255,0.1); 
-            padding-bottom: 15px; text-align: center; letter-spacing: 2px; text-shadow: 0 0 10px currentColor; 
-        }
-
-        /* 1. 牛市全息面板 */
-        .bull-action {
-            border: 1px solid rgba(255, 61, 0, 0.4);
-            background: radial-gradient(circle at top, rgba(255, 61, 0, 0.15) 0%, rgba(18, 22, 29, 0.95) 70%);
-            box-shadow: inset 0 0 30px rgba(255, 61, 0, 0.05), 0 15px 40px rgba(0,0,0,0.8);
-        }
-        .bull-action h2 { color: var(--accent-red); border-bottom-color: rgba(255, 61, 0, 0.2); }
-        .bull-action::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
-            background: linear-gradient(90deg, transparent, var(--accent-red), transparent);
-        }
-
-        /* 2. 震荡市全息面板 */
-        .osc-action {
-            border: 1px solid rgba(255, 214, 0, 0.4);
-            background: radial-gradient(circle at top, rgba(255, 214, 0, 0.12) 0%, rgba(18, 22, 29, 0.95) 70%);
-            box-shadow: inset 0 0 30px rgba(255, 214, 0, 0.05), 0 15px 40px rgba(0,0,0,0.8);
-        }
-        .osc-action h2 { color: var(--warning-yellow); border-bottom-color: rgba(255, 214, 0, 0.2); }
-        .osc-action::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
-            background: linear-gradient(90deg, transparent, var(--warning-yellow), transparent);
-        }
-
-        /* 3. 数据模块拟态化 */
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
-        .stat-box { 
-            background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.08); 
-            border-radius: 8px; padding: 15px; text-align: center; 
-            backdrop-filter: blur(4px); transition: transform 0.2s, border-color 0.2s;
-        }
-        .stat-box:hover { transform: translateY(-2px); border-color: rgba(255, 255, 255, 0.2); }
-        .stat-box.full-width { grid-column: span 2; display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; }
+        .checkbox-group { background: rgba(0, 176, 255, 0.05); border: 1px dashed var(--api-blue); padding: 10px; border-radius: 4px; display: flex; align-items: center; gap: 10px; margin-bottom: 10px; transition: 0.3s;}
+        .checkbox-group:hover { background: rgba(0, 176, 255, 0.1); }
+        .checkbox-group label { font-size: 13px; color: #8ab4f8; cursor: pointer; font-weight: bold;}
+        .checkbox-group input { width: 18px; height: 18px; cursor: pointer;}
         
-        .stat-title { font-size: 13px; color: #8ab4f8; display: block; margin-bottom: 8px; font-weight: bold; letter-spacing: 1px; }
-        .stat-val { font-size: 26px; font-weight: bold; font-family: 'Courier New', Courier, monospace; }
+        .btn-execute { width: 100%; padding: 20px; font-size: 22px; font-weight: bold; background: #8b0000; color: #fff; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px; letter-spacing: 4px; transition: 0.2s;}
+        .btn-execute:hover { background: var(--accent-red); box-shadow: 0 0 20px rgba(255, 61, 0, 0.5); }
         
-        /* 4. 荧光发光文字材质 */
-        .hl-red { color: var(--accent-red); text-shadow: 0 0 10px rgba(255, 61, 0, 0.6); }
-        .hl-green { color: var(--accent-green); text-shadow: 0 0 10px rgba(0, 230, 118, 0.6); }
-        .hl-yellow { color: var(--warning-yellow); text-shadow: 0 0 10px rgba(255, 214, 0, 0.6); }
-        .hl-blue { color: var(--api-blue); text-shadow: 0 0 10px rgba(0, 176, 255, 0.6); }
+        #resultPanel { background-color: #000; padding: 20px; border-left: 5px solid #333; font-family: monospace; font-size: 14px; white-space: pre-wrap; margin-top: 20px; line-height: 1.6; }
+        .pass { color: var(--accent-green); } .fail { color: var(--accent-red); }
 
-        /* 5. 专属：1.5R 斩首目标框（科幻瞄准器样式） */
-        .target-box-osc {
-            border: 1px dashed rgba(0, 230, 118, 0.6);
-            background: linear-gradient(135deg, rgba(0, 230, 118, 0.1) 0%, rgba(0, 0, 0, 0.6) 100%);
-            box-shadow: inset 0 0 20px rgba(0, 230, 118, 0.15);
-            position: relative; overflow: hidden;
-            flex-direction: column; justify-content: center;
-        }
-        .target-box-osc::after {
-            content: '[ TARGET LOCKED ]'; position: absolute; top: 8px; right: 12px;
-            font-size: 10px; color: rgba(0, 230, 118, 0.5); letter-spacing: 2px; font-family: monospace;
-        }
-
-        /* 纪律模块优化 */
-        .discipline-box { margin-top: 25px; padding: 20px; background: rgba(255, 61, 0, 0.05); border: 1px solid rgba(255, 61, 0, 0.2); border-radius: 8px; }
-        .discipline-box.osc { background: rgba(255, 214, 0, 0.05); border-color: rgba(255, 214, 0, 0.2); }
-        .discipline-list { list-style: none; padding: 0; margin: 0; font-size: 14px; color: #b0bec5; line-height: 1.8; text-align: left; }
-        .discipline-list li { margin-bottom: 8px; padding-left: 18px; position: relative; }
-        .discipline-list li::before { content: '►'; position: absolute; left: 0; color: var(--api-blue); font-size: 10px; top: 5px; }
-        
-        .knives-box { margin-top: 15px; padding: 15px; background: rgba(255, 64, 129, 0.05); border: 1px dashed rgba(255, 64, 129, 0.4); border-radius: 8px; text-align: left; }
-        .knife-item { font-size: 13px; color: #ccc; margin-bottom: 8px; display: flex; align-items: flex-start; gap: 8px; line-height: 1.5; }
+        /* 魔改里程碑样式 */
+        .milestone-container { margin-top: 20px; background: rgba(0,0,0,0.8); border: 1px solid #444; border-radius: 6px; padding: 15px; }
+        .milestone-header { color: var(--warning-yellow); font-size: 14px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px dashed #444; padding-bottom: 8px; display: flex; align-items: center;}
+        .milestone-item { display: flex; align-items: flex-start; margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.03); border-left: 3px solid; border-radius: 0 4px 4px 0;}
+        .ms-1r { border-left-color: var(--api-blue); }
+        .ms-bias { border-left-color: var(--warning-yellow); }
+        .ms-3r { border-left-color: var(--accent-green); }
+        .ms-title { font-weight: bold; width: 160px; font-size: 13px; flex-shrink: 0;}
+        .ms-action { font-size: 13px; color: #ccc; }
+        .ms-price { font-family: monospace; font-size: 15px; font-weight: bold; color: #fff; background: #222; padding: 2px 6px; border-radius: 3px; margin-left: 5px;}
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header">
-        <h1>双因子猎手 V13.10 | 全息战术装甲</h1>
-        <p>军工级 HUD 面板 | UI 完美对齐校准 | 数据发光引擎</p>
+    <div style="text-align:center; margin-bottom: 20px;">
+        <h1 style="color:var(--api-blue); margin:0; letter-spacing: 2px;">V19.2 穹顶微观火控面板</h1>
+        <p style="color:#666; font-size:12px; margin-top:5px;">反PPT安检 | 量价测距 | 动态里程碑推演</p>
     </div>
 
-    <div class="regime-container">
-        <div class="regime-selector">
-            <label>⚙️ 宏观大盘环境 :</label>
-            <select id="marketRegime" onchange="switchRegime()">
-                <option value="bull">🔥 牛市·强趋势 (启用 V10.5 突破战法)</option>
-                <option value="osc" selected>🌊 震荡·轮动市 (启用 V12.2 龙回头低吸)</option>
-                <option value="bear">❄️ 熊市·主跌浪 (强制空仓熔断)</option>
-            </select>
-            <button class="btn-auto" id="autoBtn" onclick="autoDetectRegime()">🤖 自动校准</button>
-        </div>
+    <div class="radar-bar">
+        <input type="text" id="apiCodeInput" placeholder="输入股票代码" style="padding:10px; width:120px; background:transparent; border:1px solid #444; color:#fff; font-weight:bold;">
+        <button class="btn-scan" onclick="fetchStockAPI()">雷达锁定</button>
+        <input type="text" id="stockName" readonly placeholder="--" style="padding:10px; width:100px; background:transparent; border:none; color:var(--warning-yellow); font-weight:bold; font-size:16px;">
+        <span id="radarStatus" style="font-size:12px; color:#666; margin-left:auto;">等待目标注入...</span>
     </div>
 
-    <div class="radar-panel">
-        <label style="color:var(--api-blue); font-weight:bold;">🎯 代码锁定 :</label>
-        <input type="text" id="apiCodeInput" placeholder="输入 6 位代码">
-        <button onclick="fetchStockAPI()">⚡ 极速抓取 API</button>
-        <span id="radarStatus" class="radar-status">等待目标指令...</span>
-    </div>
-
-    <div class="grid-container" id="mainGrid">
-        <div class="card">
-            <h2>🛡️ 1. 战术标定 (定量决生死)</h2>
-            <div class="form-group">
-                <label style="color:var(--accent-red)">🚀 头顶筹码大山下沿 (止盈位)</label>
-                <input type="number" id="targetPrice" placeholder="必填：右侧筹码图下沿" step="0.01">
+    <div class="grid-2">
+        <div class="hud-panel">
+            <div class="hud-header" style="color:var(--warning-yellow); border-bottom-color:var(--warning-yellow);">🛡️ 战前基本面安检 (灵魂三问)</div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="chk_order"><label>供货节点确认 (有真实订单/量产落地，拒买PPT)</label>
             </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="chk_diffuse"><label>产业扩散确认 (属核心主线真实外溢，非边缘蹭热点)</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="chk_moat"><label>护城河确认 (同赛道当前无更低价/更优替代品)</label>
+            </div>
+
+            <div class="hud-header" style="margin-top: 25px;">🎯 战术与微观数据录入</div>
+            <div class="form-group">
+                <select id="sniperMode">
+                    <option value="A_pullback" selected>🚢 阵位一：中军缩量回踩 MA20 (主力位)</option>
+                    <option value="A_second">🌊 阵位二：中军二波放量启动 (右侧位)</option>
+                    <option value="B_breakout">🚀 阵位三：高弹平台放量突破 (刺客位)</option>
+                </select>
+            </div>
+            <div class="grid-2">
+                <div class="form-group"><label>现价 (抓取)</label><input type="number" id="price" step="0.01" oninput="liveCalc()"></div>
+                <div class="form-group"><label>今日ATR (必填)</label><input type="number" id="atr" step="0.01" oninput="liveCalc()"></div>
+                <div class="form-group"><label>目标阻力价 (必填)</label><input type="number" id="targetPrice" step="0.01" oninput="liveCalc()"></div>
+                <div class="form-group"><label>今日量 (抓取)</label><input type="number" id="volToday"></div>
+                <div class="form-group"><label style="color:var(--warning-yellow);">BIAS(20) [测距]</label><input type="number" id="bias20" step="0.01"></div>
+                <div class="form-group"><label style="color:var(--accent-green);">20日均量 (必填)</label><input type="number" id="vol20Days"></div>
+                <div class="form-group"><label style="color:var(--api-blue);">BIAS(5) [情绪]</label><input type="number" id="bias5" step="0.01"></div>
+                <div class="form-group"><label style="color:#fff;">首发底仓金额 (如总预算的30%)</label><input type="number" id="capital" placeholder="例：准备建仓3万"></div>
+            </div>
+        </div>
+
+        <div class="hud-panel">
+            <div class="hud-header">⚖️ 实时火控读数与生命线</div>
             
-            <div class="osc-only">
-                <div class="form-group">
-                    <label style="color:var(--warning-yellow)">🌊 20日均线价格 (元)</label>
-                    <input type="number" id="ma20Price" placeholder="震荡市低吸必填" step="0.01">
-                </div>
-                <div class="form-group">
-                    <label style="color:var(--warning-yellow)">🌊 过去5日最低价 (元) [查洗盘]</label>
-                    <input type="number" id="lowPast5" placeholder="验证是否洗盘" step="0.01">
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label style="color:var(--accent-red); font-size:14px;">🚨 绝对物理止损价 (跌破无条件斩首)</label>
+                <div class="readout-box" style="border-color:var(--accent-red); background:rgba(255,0,0,0.1); height:60px;">
+                    <strong id="liveStop" style="color:var(--accent-red); font-size:28px;">--</strong>
                 </div>
             </div>
 
-            <div class="bull-only" style="display:none;">
-                <div class="form-group">
-                    <label style="color:var(--accent-red)">🔥 目标放量倍数 (防假突破)</label>
-                    <input type="number" id="volTarget" placeholder="建议 >= 1.5 倍" step="0.1">
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label style="color:var(--api-blue); font-size:14px;">🎯 动态盈亏比测算 (RR)</label>
+                <div class="readout-box" style="border-color:var(--api-blue); background:rgba(0,176,255,0.05); height:60px;">
+                    <span id="upsideLabel">预期上涨空间</span>
+                    <strong id="liveRR">-- : 1</strong>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>获利筹码比例 [%]</label>
-                <input type="number" id="profitRatio" placeholder="新高填 100，套牢区如实填">
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>🔭 2. 量价动能 (多周期雷达)</h2>
-            <div class="form-group"><label>标的名称</label><input type="text" id="stockName" readonly style="color:var(--warning-yellow); font-weight:bold;" placeholder="API 自动填充"></div>
-            <div class="form-group"><label>当前现价 (元)</label><input type="number" id="price" placeholder="必填" step="0.01"></div>
-            <div style="display:flex; gap:10px;">
-                <div class="form-group" style="flex:1;"><label>今日量</label><input type="number" id="volToday" placeholder="API/必填"></div>
-                <div class="form-group" style="flex:1;"><label style="color:var(--accent-green);">20日均量</label><input type="number" id="vol20Days" placeholder="必填"></div>
-            </div>
-            <div style="display:flex; gap:10px;">
-                <div class="form-group" style="flex:1;"><label>BIAS(60) [%]</label><input type="number" id="bias" placeholder="必填" step="0.1"></div>
-                <div class="form-group" style="flex:1;"><label>日线 RSI(14)</label><input type="number" id="rsi" placeholder="必填" step="0.1"></div>
-            </div>
-            <div class="form-group" style="margin-top: 5px;">
-                <label style="color:var(--accent-red);">月线 RSI</label>
-                <input type="number" id="rsiMonthly" placeholder="大周期防爆须 <= 70">
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>⚖️ 3. 资金配置</h2>
-            <div class="form-group">
-                <label>账户总资金 (元)</label>
-                <input type="number" id="capital" placeholder="例如 100000" style="font-weight:bold; color:var(--api-blue);">
-            </div>
-            <div class="form-group"><label>今日 ATR(14) [算止损用]</label><input type="number" id="atr" placeholder="必填" step="0.01"></div>
-            <div class="form-group"><label>市盈率 (TTM)</label><input type="number" id="pe" placeholder="API/必填" step="0.1"></div>
-            <div class="form-group"><label>经营现金流为正？</label>
-                <select id="cashFlow"><option value="yes">是 (健康)</option><option value="no">否 (枯竭)</option></select>
-            </div>
+            <button class="btn-execute" onclick="executeFireControl()">开火决断 (FIRE)</button>
         </div>
     </div>
 
-    <button class="btn-execute" id="execBtn" onclick="executeSystem()">⚡ 执行终极审判与战术输出</button>
-    <div id="logPanel"></div>
-
-    <div id="actionPlan">
-        <div class="action-card bull-action" id="bullCard" style="display: none;">
-            <h2>🔥 统帅作战指令：突破主升序列</h2>
-            <div class="stat-box full-width">
-                <span class="stat-title" style="margin:0; font-size:15px;">建议配仓数量 (1.5%风险额度)</span>
-                <span class="stat-val hl-blue" id="bShares" style="font-size:36px;">0 股</span>
-            </div>
-            <div class="stat-grid">
-                <div class="stat-box">
-                    <span class="stat-title">第一道防线 (物理止损单)</span>
-                    <span class="stat-val hl-red" id="bStop1">0.00</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-title">第二道防线 (趋势追踪)</span>
-                    <span class="stat-val hl-red" style="font-size:18px; line-height:30px;">有效跌破 MA20</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-title">⛰️ 头顶大山阻力位</span>
-                    <span class="stat-val" id="bTargetP" style="color:#fff; text-shadow:0 0 10px #fff;">0.00</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-title">⚠️ 核心盈亏比 (>=1.5)</span>
-                    <span class="stat-val hl-green" id="bRR">0.00</span>
-                </div>
-            </div>
-            <div class="discipline-box">
-                <h3 style="margin-top:0; color:var(--accent-red); border-bottom:1px dashed rgba(255,61,0,0.3); padding-bottom:8px;">⚠️ 牛市最高纪律</h3>
-                <ul class="discipline-list">
-                    <li><b style="color:#fff">买入即挂单：</b>立刻挂入第一道防线，跌破无条件砍仓认错！</li>
-                    <li><b style="color:#fff">拒绝下车：</b>只要收盘不破 MA20 均线，死拿主升浪！</li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="action-card osc-action" id="oscCard" style="display: none;">
-            <h2>🌊 统帅作战指令：龙回头防守反击</h2>
-            <div class="stat-box full-width">
-                <span class="stat-title" style="margin:0; font-size:15px;">建议配仓数量 (降维1.0%风险)</span>
-                <span class="stat-val hl-blue" id="oShares" style="font-size:36px;">0 股</span>
-            </div>
-            <div class="stat-grid">
-                <div class="stat-box">
-                    <span class="stat-title">第一步：初始保命 (挂单)</span>
-                    <span class="stat-val hl-red" id="oStop1">0.00</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-title">第三步：绝对保本 (底仓防守)</span>
-                    <span class="stat-val hl-yellow" id="oStop2">0.00</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-title">⛰️ 头顶大山阻力位</span>
-                    <span class="stat-val" id="oTargetP" style="color:#fff; text-shadow:0 0 10px #fff;">0.00</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-title">⚠️ 核心盈亏比 (>=1.5)</span>
-                    <span class="stat-val hl-green" id="oRR">0.00</span>
-                </div>
-                
-                <div class="stat-box full-width target-box-osc">
-                    <span class="stat-title" style="margin-bottom: 5px; color:#00e676;">🔪 第二步：现实斩首目标 (1.5R 强制减半)</span>
-                    <span class="stat-val hl-green" id="oTarget" style="font-size:42px;">0.00 <span style="font-size:16px; color:rgba(255,255,255,0.5); text-shadow:none;">元</span></span>
-                </div>
-            </div>
-            <div class="discipline-box osc">
-                <h3 style="margin-top:0; color:var(--warning-yellow); border-bottom:1px dashed rgba(255,214,0,0.3); padding-bottom:8px;">⚔️ 收割闭环与盘面现实</h3>
-                <ul class="discipline-list">
-                    <li><span style="color:#fff;">【触及 1.5R 斩首】：</span>不要犹豫，<b>立刻强制市价减仓 50% 落袋为安！</b></li>
-                    <li><span style="color:#fff;">【减仓后】：</span>止损提至<b>第三步保本线</b>，底仓交由下方“三把刀”极限榨取。</li>
-                </ul>
-                <div class="knives-box">
-                    <div style="color:var(--knife-color); font-weight:bold; margin-bottom:8px; text-shadow: 0 0 8px rgba(255,64,129,0.5);">⚠️ 悬崖勒马：三把刀逃顶 (未达 1.5R 触发也全清)</div>
-                    <div class="knife-item"><span>🔪</span><div><b style="color:#fff">均线绞杀：</b>收盘有效跌破短线防守均线 (MA5/MA10)。</div></div>
-                    <div class="knife-item"><span>🔪</span><div><b style="color:#fff">情绪极值：</b>日线 RSI 冲破 75 或 BIAS 飙升超 15%。</div></div>
-                    <div class="knife-item"><span>🔪</span><div><b style="color:#fff">穹顶滞涨：</b>撞击前高/大山阻力 + 放天量收长上影线。</div></div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div id="resultPanel">等待进行基本面安检与火控参数注入...</div>
 </div>
 
 <script>
-    function switchRegime() {
-        const regime = document.getElementById('marketRegime').value;
-        const bulls = document.querySelectorAll('.bull-only');
-        const oscs = document.querySelectorAll('.osc-only');
-        const grid = document.getElementById('mainGrid');
-        const execBtn = document.getElementById('execBtn');
-        
-        document.getElementById('logPanel').style.display = 'none';
-        document.getElementById('actionPlan').style.display = 'none';
-
-        bulls.forEach(el => el.style.display = (regime === 'bull' ? 'block' : 'none'));
-        oscs.forEach(el => el.style.display = (regime === 'osc' ? 'block' : 'none'));
-
-        if (regime === 'bear') {
-            grid.style.opacity = '0.3'; 
-            grid.style.pointerEvents = 'none';
-            execBtn.innerText = "🛑 熊市主跌浪：电闸已拉断";
-            execBtn.style.backgroundColor = "rgba(255,61,0,0.2)";
-            execBtn.style.color = "var(--accent-red)";
-            execBtn.disabled = true;
-        } else {
-            grid.style.opacity = '1'; 
-            grid.style.pointerEvents = 'auto';
-            execBtn.innerText = "⚡ 执行终极审判与战术输出";
-            execBtn.style.backgroundColor = "#1a222d";
-            execBtn.style.color = "var(--text-main)";
-            execBtn.disabled = false;
-        }
-    }
-
     function fetchStockAPI() {
-        let rawCode = document.getElementById('apiCodeInput').value.trim();
-        const statusEl = document.getElementById('radarStatus');
-        if(!rawCode) return;
+        let code = document.getElementById('apiCodeInput').value.trim();
+        if(!code) return;
+        if(/^\d{6}$/.test(code)) code = (code.startsWith('6') ? 'sh' : 'sz') + code;
         
-        let code = rawCode.toLowerCase();
-        if(/^\d{6}$/.test(code)) {
-            if(code.startsWith('6')) code = 'sh' + code;
-            else if(code.startsWith('8') || code.startsWith('4')) code = 'bj' + code;
-            else code = 'sz' + code; 
-        }
-        
-        statusEl.innerHTML = "<span style='color:var(--api-blue); text-shadow:0 0 5px var(--api-blue);'>📡 尝试强行破拆抓取中...</span>";
-        
+        document.getElementById('radarStatus').innerText = "抓取中...";
         const script = document.createElement('script');
-        script.src = `https://qt.gtimg.cn/q=${code}&_t=${new Date().getTime()}`;
-        
+        script.src = `https://qt.gtimg.cn/q=${code}`;
         script.onload = function() {
             try {
-                const varName = 'v_' + code;
-                if(typeof window[varName] === 'undefined' || window[varName] === "") {
-                     statusEl.innerHTML = "<span style='color:var(--accent-red)'>❌ 查无此股</span>"; 
-                     return;
-                }
-                const data = window[varName].split('~');
-                document.getElementById('stockName').value = data[1];
-                document.getElementById('price').value = data[3];
-                document.getElementById('pe').value = (data[39] && data[39] > 0) ? data[39] : ""; 
-                document.getElementById('volToday').value = data[36];
-                statusEl.innerHTML = `<span style='color:var(--accent-green); text-shadow:0 0 5px var(--accent-green);'>✅ 已锁定：${data[1]}</span>`;
-            } catch(e) { 
-                statusEl.innerHTML = "<span style='color:var(--accent-red)'>❌ 数据解析崩溃</span>"; 
+                const data = window['v_'+code].split('~');
+                document.getElementById('stockName').value = data[1]; 
+                document.getElementById('price').value = data[3];    
+                document.getElementById('volToday').value = data[36]; 
+                document.getElementById('radarStatus').innerText = "已锁定";
+                document.getElementById('radarStatus').style.color = "var(--accent-green)";
+                liveCalc(); 
+            } catch (e) {
+                document.getElementById('radarStatus').innerText = "失败";
             }
-            document.body.removeChild(script);
-        };
-        script.onerror = function() {
-            statusEl.innerHTML = "<span style='color:var(--warning-yellow)'>⚠️ 被浏览器拦截！</span>";
-            document.body.removeChild(script);
         };
         document.body.appendChild(script);
     }
 
-    function executeSystem() {
-        const regime = document.getElementById('marketRegime').value;
-        const logPanel = document.getElementById('logPanel');
-        const actionPlan = document.getElementById('actionPlan');
-        const bullCard = document.getElementById('bullCard');
-        const oscCard = document.getElementById('oscCard');
-
-        if (regime === 'bear') return;
-
+    function liveCalc() {
         const p = parseFloat(document.getElementById('price').value);
         const atr = parseFloat(document.getElementById('atr').value);
-        const targetP = parseFloat(document.getElementById('targetPrice').value);
-        const rsiDaily = parseFloat(document.getElementById('rsi').value);
-        const capital = parseFloat(document.getElementById('capital').value);
-        const pe = parseFloat(document.getElementById('pe').value);
-        const rsiMonthly = parseFloat(document.getElementById('rsiMonthly').value);
-        const bias = parseFloat(document.getElementById('bias').value);
-        const profit = parseFloat(document.getElementById('profitRatio').value);
-        const cashFlow = document.getElementById('cashFlow').value;
-        const volToday = parseFloat(document.getElementById('volToday').value);
-        const rawVol20 = parseFloat(document.getElementById('vol20Days').value);
+        const tp = parseFloat(document.getElementById('targetPrice').value);
+        const stopDisplay = document.getElementById('liveStop');
+        const rrDisplay = document.getElementById('liveRR');
+        const upsideLabel = document.getElementById('upsideLabel');
 
-        let isMissingData = false;
-        if (isNaN(p) || isNaN(atr) || isNaN(targetP) || isNaN(rsiDaily) || isNaN(capital) || isNaN(profit) || isNaN(rsiMonthly) || isNaN(bias) || isNaN(volToday) || isNaN(rawVol20) || isNaN(pe) || p <= 0 || atr <= 0 || capital <= 0) {
-            isMissingData = true;
+        if (!isNaN(p) && !isNaN(atr) && p > 0 && atr > 0) {
+            stopDisplay.innerHTML = (p - 1.5 * atr).toFixed(2);
+        } else { stopDisplay.innerHTML = "--"; }
+
+        if (!isNaN(p) && !isNaN(atr) && !isNaN(tp) && p > 0 && atr > 0 && tp > p) {
+            const risk = 1.5 * atr; 
+            const up = tp - p; 
+            const rr = up / risk;
+            upsideLabel.innerHTML = `上涨空间: +${(up/p*100).toFixed(1)}%`;
+            rrDisplay.innerHTML = `${rr.toFixed(2)} : 1`;
+            rrDisplay.style.color = rr >= 2.5 ? "var(--accent-green)" : (rr >= 1.5 ? "var(--warning-yellow)" : "var(--accent-red)");
+        } else {
+            upsideLabel.innerHTML = `预期上涨空间`;
+            rrDisplay.innerHTML = "-- : 1"; rrDisplay.style.color = "#fff";
         }
+    }
 
-        if (regime === 'osc') {
-            if (isNaN(parseFloat(document.getElementById('ma20Price').value)) || isNaN(parseFloat(document.getElementById('lowPast5').value))) isMissingData = true;
-        } else if (regime === 'bull') {
-            if (isNaN(parseFloat(document.getElementById('volTarget').value))) isMissingData = true;
-        }
-
-        if (isMissingData) {
-            logPanel.style.display = 'block'; logPanel.className = 'log-fail';
-            logPanel.innerHTML = "❌ <b style='font-size:16px;'>风控锁死：检测到核心数据漏填！</b><br><br>系统拒绝在数据不全的情况下盲目开火！";
-            actionPlan.style.display = 'none';
+    function executeFireControl() {
+        const panel = document.getElementById('resultPanel');
+        
+        const chk1 = document.getElementById('chk_order').checked;
+        const chk2 = document.getElementById('chk_diffuse').checked;
+        const chk3 = document.getElementById('chk_moat').checked;
+        
+        if (!chk1 || !chk2 || !chk3) {
+            panel.innerHTML = "<span class='fail' style='font-size:16px;'>🛑 基本面死刑：未通过【战前安检】！拒绝为纯PPT炒作或无护城河标的开火！请核实产业逻辑后打钩。</span>";
+            panel.style.borderLeftColor = "var(--accent-red)";
             return;
         }
 
-        const unitRisk = 1.5 * atr;
-        const stopPrice = p - unitRisk;
-        const potentialProfit = targetP - p;
-        const rrRatio = potentialProfit / unitRisk;
+        const mode = document.getElementById('sniperMode').value;
+        const p = parseFloat(document.getElementById('price').value);
+        const atr = parseFloat(document.getElementById('atr').value);
+        const tp = parseFloat(document.getElementById('targetPrice').value);
+        const bias5 = parseFloat(document.getElementById('bias5').value);
+        const bias20 = parseFloat(document.getElementById('bias20').value);
+        const volToday = parseFloat(document.getElementById('volToday').value);
+        const rawVol20 = parseFloat(document.getElementById('vol20Days').value);
+        const capital = parseFloat(document.getElementById('capital').value);
 
-        let volMultiplier = 0;
-        let autoUnit = "未知";
+        if(isNaN(p) || isNaN(atr) || isNaN(bias5) || isNaN(bias20) || isNaN(tp) || isNaN(volToday) || isNaN(rawVol20) || isNaN(capital)) {
+            panel.innerHTML = "<span class='fail'>🛑 火控错误：微观参数不完整（缺少价格/ATR/量能/首发资金等）！</span>"; return;
+        }
+
+        let volRatio = 0;
         if (rawVol20 > 0) {
-            let ratios = [{ val: volToday / rawVol20, name: "手" }, { val: (volToday / 10000) / rawVol20, name: "万手" }, { val: (volToday / 100000000) / rawVol20, name: "亿手" }];
-            let bestRatio = ratios.reduce((prev, curr) => Math.abs(Math.log(curr.val)) < Math.abs(Math.log(prev.val)) ? curr : prev);
-            volMultiplier = bestRatio.val; autoUnit = bestRatio.name;
+            let ratios = [{ val: volToday/rawVol20 }, { val: (volToday/10000)/rawVol20 }, { val: (volToday/100000000)/rawVol20 }];
+            volRatio = ratios.reduce((p, c) => Math.abs(Math.log(c.val)) < Math.abs(Math.log(p.val)) ? c : p).val;
         }
 
-        let fails = [];
-        let log = `🔍 盈亏比检测：预期利润 ${potentialProfit.toFixed(2)} / 风险 ${unitRisk.toFixed(2)} = <b>${rrRatio.toFixed(2)}</b>\n`;
-        log += `💡 量能探测：当前输入单位【${autoUnit}】，真实量比倍数 ${volMultiplier.toFixed(2)} 倍。\n\n`;
+        let log = `🤖 <b>全域火控系统执行审查...</b>\n`;
+        let isPass = true; let fails = [];
 
-        if (rrRatio < 1.5) fails.push(`盈亏比死刑：当前盈亏比为 ${rrRatio.toFixed(2)} (< 1.5)，拿命搏铜板，严禁开火！`);
-        if (cashFlow === 'no') fails.push("基本面死刑：现金流枯竭！");
-        if (rsiMonthly > 70) fails.push(`大周期死刑：月线 RSI (${rsiMonthly}) 过热！`);
-        if (profit < 30) fails.push(`筹码死刑：获利盘仅 ${profit}%，上方全是套牢盘！`);
+        const risk = 1.5 * atr;
+        const rr = (tp - p) / risk;
+        
+        if ((tp - p)/p*100 < 8) { fails.push(`赔率死刑：利润空间不足 8%，放弃博弈！`); isPass = false; }
+        if (rr < 1.5) { fails.push(`赔率死刑：盈亏比仅 ${rr.toFixed(1)}:1，风险大于收益！`); isPass = false; }
 
-        if (regime === 'bull') {
-            const volTarget = parseFloat(document.getElementById('volTarget').value);
-            if (volMultiplier < volTarget) fails.push(`量能死刑：未达突破红线(${volTarget}倍)！`);
-            if (volMultiplier > 4.5) fails.push(`天量死刑：倍量高达 ${volMultiplier.toFixed(2)} 倍！主力派发嫌疑极大！`);
-            if (pe < 0 || pe > 250) fails.push(`估值死刑：PE ${pe} 偏高！`);
-            if (bias < 0 || bias > 15) fails.push(`动能死刑：BIAS 偏离安全区！`);
-            if (rsiDaily < 50 || rsiDaily > 75) fails.push(`日线情绪死刑：RSI (${rsiDaily}) 不在主升区间！`);
-        } else if (regime === 'osc') {
-            const ma20 = parseFloat(document.getElementById('ma20Price').value);
-            const low5 = parseFloat(document.getElementById('lowPast5').value);
-            if (pe < 0 || pe > 100) fails.push(`估值死刑：震荡市 PE 超 100！`);
-            if (low5 > ma20 * 1.02) fails.push("形态死刑：未曾深度洗盘！");
-            if (bias > 8 || rsiDaily > 65) fails.push(`追高/情绪死刑：BIAS或日RSI(${rsiDaily})过热，极易吃面！`);
-            if (volMultiplier < 1.2 || volMultiplier > 3.5) fails.push(`量能死刑：倍量 ${volMultiplier.toFixed(2)} 异常，必须是温和放量！`);
+        if (mode === 'B_breakout') {
+            if (volRatio < 1.5) { fails.push(`量能死刑：倍量仅 ${volRatio.toFixed(2)}，突破未达爆量标准！`); isPass = false; }
+            if (bias5 > 8) { fails.push(`防A杀死刑：BIAS5 = ${bias5}%，严重超买，绝不在高潮点接最后一棒！`); isPass = false; }
+        } else if (mode === 'A_pullback') {
+            if (volRatio > 0.8) { fails.push(`洗盘死刑：量比 ${volRatio.toFixed(2)}，未达地量，抛压未竭！`); isPass = false; }
+            if (bias20 < -1.5 || bias20 > 2.0) { fails.push(`测距死刑：BIAS20=${bias20}%，偏离 MA20 绝对防区！`); isPass = false; }
+        } else if (mode === 'A_second') {
+            if (volRatio < 1.2) { fails.push(`动能死刑：量比 ${volRatio.toFixed(2)}，二波启动无资金跟随！`); isPass = false; }
+            if (bias20 <= 0) { fails.push(`趋势死刑：未有效突破并站稳 MA20。`); isPass = false; }
         }
 
-        logPanel.style.display = 'block';
-        if (fails.length > 0) {
-            logPanel.className = 'log-fail';
-            logPanel.innerHTML = log + "🚫 统帅部终极宣判：【排雷失败，严禁开火！】\n" + fails.join('\n');
-            actionPlan.style.display = 'none';
+        if (!isPass) {
+            panel.innerHTML = log + "<br><span class='fail' style='font-size:18px;'>🛑 红色警报：拦截开火！</span>\n" + fails.map(f => " ❌ " + f).join("\n");
+            panel.style.borderLeftColor = "var(--accent-red)";
         } else {
-            logPanel.className = 'log-pass';
-            logPanel.innerHTML = log + "✅ 统帅部终极宣判：【逻辑闭环完美，准许下达作战指令！】";
-            actionPlan.style.display = 'block';
+            const shares = Math.floor(capital / p / 100) * 100;
+            const target1R = (p + risk).toFixed(2);
+            const target3R = (p + (3 * risk)).toFixed(2);
             
-            const riskAmt = regime === 'bull' ? capital * 0.015 : capital * 0.01;
-            const shares = Math.floor((riskAmt / unitRisk) / 100) * 100;
+            panel.innerHTML = log + `<br><span class='pass' style='font-size:18px;'>✅ 绿色通道：基本面与火控参数完美，批准射击！</span>\n\n`;
+            panel.innerHTML += `🎯 <b>核准首发兵力:</b> <span style="color:var(--warning-yellow);">${shares} 股</span>\n`;
+            panel.innerHTML += `⚖️ <b>系统算定量比:</b> <span style="color:var(--api-blue);">${volRatio.toFixed(2)} 倍</span>\n\n`;
             
-            if (regime === 'bull') {
-                document.getElementById('bShares').innerText = shares + " 股";
-                document.getElementById('bStop1').innerText = stopPrice.toFixed(2);
-                document.getElementById('bTargetP').innerText = targetP.toFixed(2);
-                document.getElementById('bRR').innerText = rrRatio.toFixed(2);
-                bullCard.style.display = 'block'; oscCard.style.display = 'none';
-            } else if (regime === 'osc') {
-                const oTarget15R = p + (1.5 * unitRisk);
-                const oStop2BreakEven = p * 1.005;
-                document.getElementById('oShares').innerText = shares + " 股";
-                document.getElementById('oStop1').innerText = stopPrice.toFixed(2);
-                document.getElementById('oStop2').innerText = oStop2BreakEven.toFixed(2);
-                document.getElementById('oTargetP').innerText = targetP.toFixed(2);
-                document.getElementById('oRR').innerText = rrRatio.toFixed(2);
-                document.getElementById('oTarget').innerText = oTarget15R.toFixed(2);
-                oscCard.style.display = 'block'; bullCard.style.display = 'none';
-            }
-            setTimeout(() => actionPlan.scrollIntoView({ behavior: 'smooth' }), 100);
+            // 动态注入魔改版里程碑 HUD
+            panel.innerHTML += `
+            <div class="milestone-container">
+                <div class="milestone-header">🚩 战役推进里程碑 (心理锚点推演)</div>
+                
+                <div class="milestone-item ms-1r">
+                    <div class="ms-title" style="color: var(--api-blue);">【脱离地心引力】</div>
+                    <div class="ms-action">当股价触及 <span class="ms-price">${target1R}</span> (1R盈利) 时 👉 动作：将绝对止损线上移至您的建仓成本价，实现本金零风险底仓。</div>
+                </div>
+                
+                <div class="milestone-item ms-bias">
+                    <div class="ms-title" style="color: var(--warning-yellow);">【情绪沸点警戒】</div>
+                    <div class="ms-action">盯紧盘面，当 BIAS(5) 逼近 10% 或以上时 👉 动作：进入左侧减仓警戒区，随时准备减仓 30% 收割散户。</div>
+                </div>
+                
+                <div class="milestone-item ms-3r">
+                    <div class="ms-title" style="color: var(--accent-green);">【主升浪信仰】</div>
+                    <div class="ms-action">当股价突破 <span class="ms-price">${target3R}</span> (3R盈利) 且未破 MA20 👉 动作：享受泡沫，不设上限，任由利润狂奔！</div>
+                </div>
+            </div>`;
+            
+            panel.style.borderLeftColor = "var(--accent-green)";
         }
     }
-    switchRegime();
 </script>
 </body>
 </html>
