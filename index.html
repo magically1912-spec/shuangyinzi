@@ -2,20 +2,21 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>动量猎手 V23.0 | 量化全自动火控系统</title>
+    <title>动量猎手 V23.0 | 量化全自动火控系统 (双轨融合版)</title>
     <style>
         :root {
             --bg-color: #0b0e14; --panel-bg: #131820; --text-main: #e0e6ed;
             --text-muted: #6b7280; --accent-green: #00e676; --accent-red: #ff3d00;
             --border-color: #2a3241; --api-blue: #00b0ff; --warning-yellow: #ffd600;
         }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center;}
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center;}
         .container { width: 100%; max-width: 950px; }
         
         .hud-panel { background: rgba(19, 24, 32, 0.8); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 0 20px rgba(0, 176, 255, 0.05); }
         .hud-header { font-size: 14px; font-weight: bold; color: var(--api-blue); margin-bottom: 15px; border-bottom: 1px dashed var(--border-color); padding-bottom: 8px; letter-spacing: 1px;}
         
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
         
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 12px; color: #8ab4f8; margin-bottom: 4px; font-weight: bold; }
@@ -32,16 +33,15 @@
 
         .checkbox-group { background: rgba(0, 176, 255, 0.05); border: 1px dashed var(--api-blue); padding: 10px; border-radius: 4px; display: flex; align-items: center; gap: 10px; margin-bottom: 10px; transition: 0.3s;}
         .checkbox-group:hover { background: rgba(0, 176, 255, 0.1); }
-        .checkbox-group label { font-size: 13px; color: #8ab4f8; cursor: pointer; font-weight: bold; line-height: 1.4;}
+        .checkbox-group label { font-size: 13px; color: #8ab4f8; cursor: pointer; font-weight: bold; line-height: 1.4; flex: 1;}
         .checkbox-group input { width: 18px; height: 18px; cursor: pointer; flex-shrink: 0;}
         
-        .btn-execute { width: 100%; padding: 20px; font-size: 22px; font-weight: bold; background: #8b0000; color: #fff; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px; letter-spacing: 4px; transition: 0.2s;}
+        .btn-execute { width: 100%; padding: 20px; font-size: 20px; font-weight: bold; background: #8b0000; color: #fff; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px; letter-spacing: 2px; transition: 0.2s;}
         .btn-execute:hover { background: var(--accent-red); box-shadow: 0 0 20px rgba(255, 61, 0, 0.5); }
         
         #resultPanel { background-color: #000; padding: 20px; border-left: 5px solid #333; font-family: monospace; font-size: 14px; white-space: pre-wrap; margin-top: 20px; line-height: 1.6; }
         .pass { color: var(--accent-green); } .fail { color: var(--accent-red); }
 
-        /* V23.0 专属里程碑样式 */
         .milestone-container { margin-top: 20px; background: rgba(0,0,0,0.8); border: 1px solid #444; border-radius: 6px; padding: 15px; }
         .milestone-header { color: var(--warning-yellow); font-size: 14px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px dashed #444; padding-bottom: 8px; display: flex; align-items: center;}
         .milestone-item { display: flex; align-items: flex-start; margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.03); border-left: 3px solid; border-radius: 0 4px 4px 0;}
@@ -57,12 +57,12 @@
 
 <div class="container">
     <div style="text-align:center; margin-bottom: 20px;">
-        <h1 style="color:var(--api-blue); margin:0; letter-spacing: 2px;">V23.0 量化动量火控终端</h1>
-        <p style="color:#666; font-size:12px; margin-top:5px;">API 实时雷达 | 海龟1%风控 | 2.5ATR 吊灯追踪防线</p>
+        <h1 style="color:var(--api-blue); margin:0; letter-spacing: 2px;">V23.0 动量火控终端 (双轨融合版)</h1>
+        <p style="color:#666; font-size:12px; margin-top:5px;">完美适配 10CM 主板重装师 & 20CM 科创/创业特种兵</p>
     </div>
 
     <div class="radar-bar">
-        <input type="text" id="apiCodeInput" placeholder="输入股票代码" style="padding:10px; width:120px; background:transparent; border:1px solid #444; color:#fff; font-weight:bold;">
+        <input type="text" id="apiCodeInput" placeholder="输入股票代码 (如 600519 或 688012)" style="padding:10px; width:220px; background:transparent; border:1px solid #444; color:#fff; font-weight:bold;">
         <button class="btn-scan" onclick="fetchStockAPI()">雷达锁定 (实时抓取)</button>
         <input type="text" id="stockName" readonly placeholder="--" style="padding:10px; width:120px; background:transparent; border:none; color:var(--warning-yellow); font-weight:bold; font-size:16px;">
         <span id="radarStatus" style="font-size:12px; color:#666; margin-left:auto;">等待目标注入...</span>
@@ -70,24 +70,37 @@
 
     <div class="grid-2">
         <div class="hud-panel">
-            <div class="hud-header" style="color:var(--warning-yellow); border-bottom-color:var(--warning-yellow);">🛡️ V23.0 三维全息安检 (必须全勾选)</div>
+            <div class="hud-header" style="color:var(--warning-yellow); border-bottom-color:var(--warning-yellow);">🛡️ V23.0 四维全息安检 (必须全勾选)</div>
+            
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="color:var(--warning-yellow); font-size: 14px;">⚔️ 选择作战阵地 (自动切换风控漏斗)</label>
+                <select id="boardType" onchange="updateChecklistText(); liveCalc();">
+                    <option value="main">【主板 10CM】(100股起步 | 重真金白银)</option>
+                    <option value="chinext">【创业板 20CM】(100股起步 | 重研发爆发)</option>
+                    <option value="star">【科创板 20CM】(200股起步, 1股递增 | 重研发爆发)</option>
+                </select>
+            </div>
+
             <div class="checkbox-group">
-                <input type="checkbox" id="chk_macro"><label>宏观系统安全 (沪深300指数 近15日跌幅未超过 2%)</label>
+                <input type="checkbox" id="chk_macro" checked><label>宏观系统安全 (沪深300指数 近15日跌幅未超过 2%)</label>
             </div>
             <div class="checkbox-group">
-                <input type="checkbox" id="chk_fund"><label>基本面绞肉机通关 (ROA>5%, 营收>10%, 现金流为正, 估值<80)</label>
+                <input type="checkbox" id="chk_fund" checked><label id="label_fund">基本面通关 (主板：市值≥100亿, 营收增长>10%, ROA>5%, 现金流为正, PE>0)</label>
             </div>
             <div class="checkbox-group">
-                <input type="checkbox" id="chk_liq"><label>流动性深度确认 (近20日 日均换手率 > 3%，非织布机)</label>
+                <input type="checkbox" id="chk_liq" checked><label>流动性深度确认 (近20日 日均换手率 ≥ 3%，非织布机)</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="chk_vol" checked><label>右侧量价共振确认 (近5日均量 > 近20日均量，温和放量)</label>
             </div>
 
             <div class="hud-header" style="margin-top: 25px;">🎯 战术参数录入</div>
             <div class="grid-2">
-                <div class="form-group full-width" style="grid-column: span 2;"><label style="color:#fff; font-size: 14px;">🏦 账户总资金 (决定1%绝对风控上限)</label><input type="number" id="capital" placeholder="例：1000000"></div>
+                <div class="form-group full-width" style="grid-column: span 2;"><label style="color:#fff; font-size: 14px;">🏦 账户总资金 (决定1%绝对风控上限)</label><input type="number" id="capital" placeholder="例：1000000" oninput="liveCalc()"></div>
                 <div class="form-group"><label style="color:var(--accent-green);">现价 (API自动抓取)</label><input type="number" id="price" step="0.01" oninput="liveCalc()"></div>
                 <div class="form-group"><label style="color:var(--api-blue);">买入后最高价 (建仓填现价)</label><input type="number" id="highestPrice" step="0.01" oninput="liveCalc()"></div>
                 <div class="form-group"><label style="color:var(--warning-yellow);">今日 ATR(14) 真实波幅 (必填)</label><input type="number" id="atr" step="0.01" oninput="liveCalc()"></div>
-                <div class="form-group"><label style="color:var(--accent-red);">MA20 生命线价位 (必填)</label><input type="number" id="ma20" step="0.01"></div>
+                <div class="form-group"><label style="color:var(--accent-red);">MA20 生命线价位 (必填)</label><input type="number" id="ma20" step="0.01" oninput="liveCalc()"></div>
             </div>
         </div>
 
@@ -110,7 +123,7 @@
                 </div>
             </div>
 
-            <button class="btn-execute" onclick="executeFireControl()">系统推演 (CALCULATE)</button>
+            <button class="btn-execute" onclick="executeFireControl()">全息推演 (CALCULATE)</button>
         </div>
     </div>
 
@@ -118,10 +131,25 @@
 </div>
 
 <script>
-    // 腾讯云 API 抓取现价
+    function updateChecklistText() {
+        const board = document.getElementById('boardType').value;
+        const fundLabel = document.getElementById('label_fund');
+        if (board === 'main') {
+            fundLabel.innerText = "基本面通关 (主板：市值≥100亿, 营收增长>10%, ROA>5%, 现金流为正, PE>0)";
+        } else {
+            fundLabel.innerText = "基本面通关 (20CM：市值≥30亿, 营收增长>20%, 研发费用率>8%, 容忍亏损)";
+        }
+    }
+
     function fetchStockAPI() {
         let code = document.getElementById('apiCodeInput').value.trim();
         if(!code) return;
+        
+        // 自动识别板块并切换 Select
+        if(code.startsWith('688')) { document.getElementById('boardType').value = 'star'; updateChecklistText(); }
+        else if(code.startsWith('300')) { document.getElementById('boardType').value = 'chinext'; updateChecklistText(); }
+        else if(code.startsWith('60') || code.startsWith('000') || code.startsWith('002')) { document.getElementById('boardType').value = 'main'; updateChecklistText(); }
+
         if(/^\d{6}$/.test(code)) code = (code.startsWith('6') ? 'sh' : 'sz') + code;
         
         document.getElementById('radarStatus').innerText = "抓取中...";
@@ -143,7 +171,6 @@
         document.body.appendChild(script);
     }
 
-    // 实时计算面板读数
     function liveCalc() {
         const p = parseFloat(document.getElementById('price').value);
         let high = parseFloat(document.getElementById('highestPrice').value);
@@ -154,7 +181,6 @@
         const riskDisplay = document.getElementById('liveMaxRisk');
         const distLabel = document.getElementById('stopDistanceLabel');
 
-        // 最高价逻辑保护
         if (isNaN(high) || high < p) high = p;
 
         if (!isNaN(atr) && atr > 0 && !isNaN(high) && high > 0) {
@@ -173,16 +199,17 @@
         }
     }
 
-    // 终极火控执行核心
     function executeFireControl() {
         const panel = document.getElementById('resultPanel');
         
+        const board = document.getElementById('boardType').value;
         const chkMacro = document.getElementById('chk_macro').checked;
         const chkFund = document.getElementById('chk_fund').checked;
         const chkLiq = document.getElementById('chk_liq').checked;
+        const chkVol = document.getElementById('chk_vol').checked;
         
-        if (!chkMacro || !chkFund || !chkLiq) {
-            panel.innerHTML = "<span class='fail' style='font-size:16px;'>🛑 权限驳回：未通过【V23.0 三维安检】！绝不允许在宏观恶化或基本面拉胯时暴露头寸！</span>";
+        if (!chkMacro || !chkFund || !chkLiq || !chkVol) {
+            panel.innerHTML = "<span class='fail' style='font-size:16px;'>🛑 权限驳回：未通过【V23.0 四维全息安检】！绝不允许在宏观恶化、基本面拉胯或无量假突破时暴露头寸！</span>";
             panel.style.borderLeftColor = "var(--accent-red)";
             return;
         }
@@ -199,10 +226,10 @@
 
         if (isNaN(high) || high < p) high = p;
 
-        let log = `🤖 <b>全域火控系统执行量化审查...</b>\n`;
+        let log = `🤖 <b>全域火控系统执行量化审查...</b>
+`;
         let isPass = true; let fails = [];
 
-        // V23.0 核心逻辑审查
         if (p <= ma20) { 
             fails.push(`左侧物理死刑：现价 ${p} 跌破 MA20 生命线 (${ma20})，拒绝接飞刀！`); 
             isPass = false; 
@@ -213,53 +240,89 @@
         const stopPrice = high - stopDist;
         
         if (p < stopPrice) {
-            fails.push(`破位死刑：现价已触及动态止损位 ${stopPrice.toFixed(2)}，持仓建议立即斩仓！`); 
+            fails.push(`破位死刑：现价已触及动态止损位 ${stopPrice.toFixed(2)}，持仓建议立即斩仓清仓！`); 
             isPass = false; 
         }
 
         if (!isPass) {
-            panel.innerHTML = log + "<br><span class='fail' style='font-size:18px;'>🛑 红色警报：系统锁死交易接口！</span>\n" + fails.map(f => " ❌ " + f).join("\n");
+            panel.innerHTML = log + "<br><span class='fail' style='font-size:18px;'>🛑 红色警报：系统锁死交易接口！</span>
+" + fails.map(f => " ❌ " + f).join("
+");
             panel.style.borderLeftColor = "var(--accent-red)";
         } else {
-            // 海龟仓位推演计算
-            let shares = Math.floor((maxRisk / stopDist) / 100) * 100;
-            if (shares < 0) shares = 0;
+            // 根据板块动态计算申报股数
+            let raw_shares = maxRisk / stopDist;
+            let shares = 0;
+            let boardRuleText = "";
+
+            if (board === 'star') {
+                shares = Math.floor(raw_shares);
+                if (shares < 200) shares = 0;
+                boardRuleText = "科创板 (200股起购，1股递增)";
+            } else if (board === 'chinext') {
+                shares = Math.floor(raw_shares / 100) * 100;
+                if (shares < 100) shares = 0;
+                boardRuleText = "创业板 (100股起购，100股整数倍)";
+            } else {
+                shares = Math.floor(raw_shares / 100) * 100;
+                if (shares < 100) shares = 0;
+                boardRuleText = "主板 (100股起购，100股整数倍)";
+            }
+            
+            if (shares === 0) {
+                panel.innerHTML = log + `<br><span class='fail' style='font-size:18px;'>🛑 资金不足：按1%风控公式计算，可买股数无法达到【${boardRuleText}】的起步门槛，禁止开仓！</span>
+`;
+                panel.style.borderLeftColor = "var(--accent-red)";
+                return;
+            }
+
             let cost = shares * p;
             let warnMsg = "";
 
-            // 30% 上限防线
+            // 30% 仓位上限防线
             if (cost > capital * 0.3) {
-                shares = Math.floor((capital * 0.3 / p) / 100) * 100;
+                let limit_raw_shares = (capital * 0.3) / p;
+                if (board === 'star') {
+                    shares = Math.floor(limit_raw_shares);
+                } else {
+                    shares = Math.floor(limit_raw_shares / 100) * 100;
+                }
                 cost = shares * p;
-                warnMsg = `\n⚠️ <b>风控降维介入：</b> 计算仓位触及单股 30% 上限，已强行削减拨付股数！`;
+                warnMsg = `
+⚠️ <b>风控降维介入：</b> 目标仓位触及单股 30% 上限，已强行削减拨付股数！`;
             }
             
             const ratio = ((cost / capital) * 100).toFixed(2);
 
-            panel.innerHTML = log + `<br><span class='pass' style='font-size:18px;'>✅ 绿色通道：量价关系处于右侧健康区域，批准火力覆盖！</span>\n`;
-            if (warnMsg) panel.innerHTML += `<span style='color:var(--warning-yellow);'>${warnMsg}</span>\n`;
+            panel.innerHTML = log + `<br><span class='pass' style='font-size:18px;'>✅ 绿色通道：量价关系处于右侧健康区域，批准火力覆盖！</span>
+`;
+            if (warnMsg) panel.innerHTML += `<span style='color:var(--warning-yellow);'>${warnMsg}</span>
+`;
             
-            panel.innerHTML += `\n🎯 <b>精确核准兵力:</b> <span style="color:var(--accent-green); font-size:18px;">${shares} 股</span>\n`;
-            panel.innerHTML += `💰 <b>建仓所需资金:</b> <span style="color:var(--api-blue);">${cost.toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2})} 元 (占总仓位 ${ratio}%)</span>\n\n`;
+            panel.innerHTML += `
+🎯 <b>精确核准兵力 [${boardRuleText}]:</b> <span style="color:var(--accent-green); font-size:18px;">${shares} 股</span>
+`;
+            panel.innerHTML += `💰 <b>建仓所需资金:</b> <span style="color:var(--api-blue);">${cost.toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2})} 元 (占总仓位 ${ratio}%)</span>
+
+`;
             
-            // V23.0 新版追踪止损里程碑
             panel.innerHTML += `
             <div class="milestone-container">
                 <div class="milestone-header">🚩 V23.0 实战交易机器纪律</div>
                 
                 <div class="milestone-item ms-1r">
                     <div class="ms-title" style="color: var(--accent-red);">【一键挂单锁喉】</div>
-                    <div class="ms-action">买入后立刻打开券商APP，利用【条件单】功能，设置市价止损线为： <span class="ms-price">${stopPrice.toFixed(2)}</span>。跌破机器自动斩仓。</div>
+                    <div class="ms-action">买入后立刻设置条件单，止损线为： <span class="ms-price">${stopPrice.toFixed(2)}</span>。跌破机器自动斩仓。${board === 'star' ? '注意：科创板零股需一次性全部卖出。' : ''}</div>
                 </div>
                 
                 <div class="milestone-item ms-bias">
                     <div class="ms-title" style="color: var(--api-blue);">【动态追踪防线】</div>
-                    <div class="ms-action">明天起，只要盘中创出新高，请将新高输入本沙盘的【买入后最高价】，重新推演上移后的吊灯止损价，锁住利润。</div>
+                    <div class="ms-action">明天起，只要创出新高，在此沙盘更新【买入后最高价】，推演上移后的吊灯止损价，让利润奔跑。</div>
                 </div>
                 
                 <div class="milestone-item ms-3r">
-                    <div class="ms-title" style="color: var(--warning-yellow);">【熔断红线】</div>
-                    <div class="ms-action">如果在持仓期间，沪深300指数 15天内发生大跳水，无需理会个股技术面，全域一键清仓躲避主跌浪！</div>
+                    <div class="ms-title" style="color: var(--warning-yellow);">【熔断/排雷红线】</div>
+                    <div class="ms-action">沪深300指数 15天跌超2%，或财报暴雷跌破基本面底线（主板ROA<5% / 科创研发<8%），无视技术面一键清仓！</div>
                 </div>
             </div>`;
             
