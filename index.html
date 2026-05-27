@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>动量猎手 V23.0 | 量化全自动火控系统 (终极进化版)</title>
+    <title>动量猎手 V32.0 | 量化全自动火控系统 (终极进化版)</title>
     <style>
         :root {
             --bg-color: #0b0e14; --panel-bg: #131820; --text-main: #e0e6ed;
@@ -56,7 +56,7 @@
 
 <div class="container">
     <div style="text-align:center; margin-bottom: 25px;">
-        <h1 style="color:var(--api-blue); margin:0 0 10px 0; letter-spacing: 2px; font-size: 28px;">V23.0 动量火控终端 (全息进化版)</h1>
+        <h1 style="color:var(--api-blue); margin:0 0 10px 0; letter-spacing: 2px; font-size: 28px;">V32.0 动量火控终端 (全息进化版)</h1>
         <p style="color:#8ab4f8; font-size:14px; margin:0; font-weight: bold;">完美适配 主板10CM & 科创创业20CM | 绝对风控计算器</p>
     </div>
 
@@ -69,7 +69,7 @@
 
     <div class="grid-2">
         <div class="hud-panel">
-            <div class="hud-header" style="color:var(--warning-yellow); border-bottom-color:var(--warning-yellow);">🛡️ V23.0 四维安检 (强制勾选)</div>
+            <div class="hud-header" style="color:var(--warning-yellow); border-bottom-color:var(--warning-yellow);">🛡️ V32.0 四维安检 (强制勾选)</div>
             
             <div class="form-group" style="margin-bottom: 15px;">
                 <label style="color:var(--warning-yellow); font-size: 13px;">⚔️ 目标作战阵地 (自动判定)</label>
@@ -125,7 +125,7 @@
         <div class="hud-header">⚖️ 海龟动态推演中心</div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
             <div class="readout-box" style="border-color:var(--accent-red); background:rgba(255,0,0,0.1);">
-                <span id="stopDistanceLabel">2.5倍 ATR 缓冲空间: --</span>
+                <span id="stopDistanceLabel">1.5倍 ATR 缓冲空间: --</span>
                 <div style="display:flex; justify-content:center; align-items:baseline; gap:10px;">
                     <span style="font-size:14px; color:var(--accent-red);">止损价:</span>
                     <strong id="liveStop" style="color:var(--accent-red);">--</strong>
@@ -196,12 +196,12 @@
         if (isNaN(high) || high < p) high = p;
 
         if (!isNaN(atr) && atr > 0 && !isNaN(high) && high > 0) {
-            const stopDist = 2.5 * atr;
+            const stopDist = 1.5 * atr;
             stopDisplay.innerHTML = (high - stopDist).toFixed(2);
-            distLabel.innerHTML = `2.5 倍 ATR 缓冲空间: -${stopDist.toFixed(2)} 元`;
+            distLabel.innerHTML = `1.5 倍 ATR 缓冲空间: -${stopDist.toFixed(2)} 元`;
         } else { 
             stopDisplay.innerHTML = "--"; 
-            distLabel.innerHTML = "2.5 倍 ATR 缓冲空间: --";
+            distLabel.innerHTML = "1.5 倍 ATR 缓冲空间: --";
         }
 
         if (!isNaN(cap) && cap > 0) {
@@ -221,7 +221,7 @@
         const chkVol = document.getElementById('chk_vol').checked;
         
         if (!chkMacro || !chkFund || !chkLiq || !chkVol) {
-            panel.innerHTML = "<span class='fail' style='font-size:18px;'>🛑 权限驳回：未通过【V23.0 四维全息安检】！</span>\n绝不允许在宏观恶化、基本面拉胯或无量假突破时暴露头寸！";
+            panel.innerHTML = "<span class='fail' style='font-size:18px;'>🛑 权限驳回：未通过【V32.0 四维全息安检】！</span>\n绝不允许在宏观恶化、基本面拉胯或无量假突破时暴露头寸！";
             panel.style.borderLeftColor = "var(--accent-red)";
             return;
         }
@@ -248,7 +248,7 @@
         }
 
         const maxRisk = capital * 0.01;
-        const stopDist = 2.5 * atr;
+        const stopDist = 1.5 * atr;
         const stopPrice = high - stopDist;
         
         // 2. 破位死刑
@@ -327,7 +327,7 @@
         
         panel.innerHTML += `
         <div class="milestone-container">
-            <div class="milestone-header">🚩 V23.0 实战交易机器纪律</div>
+            <div class="milestone-header">🚩 V32.0 实战交易机器纪律</div>
             
             <div class="milestone-item ms-1r">
                 <div class="ms-title" style="color: var(--accent-red);">【一键挂单锁喉】</div>
